@@ -5,6 +5,7 @@
 ## 目录
 
 - `dataset_standard_v0/`：标准母版数据集，41 个 CT NIfTI、标签、split、metadata 和 checksum。
+- `dataset_96slice_v0/`：离线预处理缓存数据集，每例 96 张三窗轴位 slice，用于加速 MIL 训练。
 - `code/`：训练代码。
 - `experiments/`：模型训练输出。
 - `source_tables/`：原始 Excel / 病理表副本，用于追溯标签和影像筛选来源。
@@ -26,3 +27,8 @@ python3 /Volumes/My_Drive/腹膜后肿瘤诊断/code/train_mil_demo.py
 
 脚本会读取 `dataset_standard_v0/all.csv`，输出到 `experiments/`。
 
+缓存版训练入口：
+
+```bash
+python3 /Volumes/My_Drive/腹膜后肿瘤诊断/code/train_mil_cached_demo.py
+```
