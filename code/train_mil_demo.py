@@ -16,7 +16,7 @@ from torchvision.models import ResNet18_Weights, resnet18
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATASET_ROOT = PROJECT_ROOT / "dataset_standard_v0"
 CSV_PATH = DATASET_ROOT / "all.csv"
-OUT_DIR = PROJECT_ROOT / "experiments" / "mil_resnet18_demo_10ep"
+OUT_DIR = PROJECT_ROOT / "experiments" / "mil_resnet18_unfrozen_10ep"
 
 NUM_CLASSES = 4
 NUM_SLICES = 32
@@ -25,7 +25,7 @@ EPOCHS = 10
 BATCH_SIZE = 1
 LR = 1e-4
 WEIGHT_DECAY = 1e-4
-FREEZE_BACKBONE = True
+FREEZE_BACKBONE = False
 SEED = 42
 
 WINDOWS = [
