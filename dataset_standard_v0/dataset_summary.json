@@ -1,0 +1,14 @@
+{
+  "name": "retroperitoneal_tumor_ct_dataset_standard_v0",
+  "n_cases": 41,
+  "n_train": 37,
+  "n_test": 4,
+  "labels_4": [
+    "副神经节瘤",
+    "淋巴瘤",
+    "肉瘤类",
+    "良性神经源性肿瘤"
+  ],
+  "images_are_raw_nifti": true,
+  "preprocessing_baked_in": false
+}

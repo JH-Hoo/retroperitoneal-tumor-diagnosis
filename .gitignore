@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+*.pyc
+
+# Large local data are transferred with rsync, not stored in git.
+dataset_standard_v0/images/
+
+# Keep experiment metrics/logs small and readable, but do not version model weights.
+experiments/*/*.pt
+experiments/*/*.pth
+
