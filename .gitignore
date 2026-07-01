@@ -5,6 +5,7 @@ __pycache__/
 # Large local data are transferred with rsync, not stored in git.
 dataset_standard_v0/images/
 dataset_96slice_v0/tensors/
+dataset_96slice_balanced_aug_v0/tensors/
 
 # Keep experiment metrics/logs small and readable, but do not version model weights.
 experiments/*/*.pt

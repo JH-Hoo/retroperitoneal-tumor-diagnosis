@@ -1,0 +1,50 @@
+{
+  "name": "dataset_96slice_balanced_aug_v0",
+  "source_dataset": "dataset_standard_v0",
+  "purpose": "experimental class-balanced training-time augmentation cache",
+  "num_source_cases": 41,
+  "num_cached_bags": 118,
+  "num_train_bags": 114,
+  "num_test_bags": 4,
+  "train_counts": {
+    "良性神经源性肿瘤": 28,
+    "淋巴瘤": 28,
+    "肉瘤类": 28,
+    "副神经节瘤": 30
+  },
+  "test_counts": {
+    "副神经节瘤": 1,
+    "良性神经源性肿瘤": 1,
+    "淋巴瘤": 1,
+    "肉瘤类": 1
+  },
+  "train_multipliers": {
+    "肉瘤类": 14,
+    "良性神经源性肿瘤": 14,
+    "副神经节瘤": 6,
+    "淋巴瘤": 1
+  },
+  "tensor_shape": [
+    96,
+    3,
+    224,
+    224
+  ],
+  "tensor_dtype": "uint8",
+  "sampling": "stratified random z sampling; split z axis into 96 bins and sample one slice per bin",
+  "windows": [
+    [
+      -160.0,
+      240.0
+    ],
+    [
+      -200.0,
+      100.0
+    ],
+    [
+      -200.0,
+      400.0
+    ]
+  ],
+  "normalization": "stored as 0-255 windowed images; divide by 255 and apply ImageNet mean/std at training time"
+}
