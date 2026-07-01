@@ -1,0 +1,70 @@
+{
+  "accuracy": 0.25,
+  "macro_f1": 0.125,
+  "weighted_f1": 0.125,
+  "confusion_matrix": [
+    [
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      1
+    ]
+  ],
+  "classification_report": {
+    "肉瘤类": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "良性神经源性肿瘤": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "副神经节瘤": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "淋巴瘤": {
+      "precision": 0.3333333333333333,
+      "recall": 1.0,
+      "f1-score": 0.5,
+      "support": 1.0
+    },
+    "accuracy": 0.25,
+    "macro avg": {
+      "precision": 0.08333333333333333,
+      "recall": 0.25,
+      "f1-score": 0.125,
+      "support": 4.0
+    },
+    "weighted avg": {
+      "precision": 0.08333333333333333,
+      "recall": 0.25,
+      "f1-score": 0.125,
+      "support": 4.0
+    }
+  }
+}
