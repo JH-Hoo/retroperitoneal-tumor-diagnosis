@@ -5,10 +5,10 @@ This is a minimal raw-image dataset for the pilot four-class retroperitoneal tum
 ## Contents
 
 - `images/`: raw venous/portal-phase CT NIfTI files, one file per case, named by anonymized group ID.
-- `labels.csv`: case-level pathology labels.
+- `labels.csv`: labeled four-class cases only.
 - `metadata.csv`: clinical/image metadata and source traceability fields.
-- `all.csv`: combined labels, metadata, and split assignment.
-- `splits/train.csv`: 37 training cases.
+- `all.csv`: all currently present main267 cases, including unlabeled or excluded cases.
+- `splits/train.csv`: 212 training cases.
 - `splits/test.csv`: 4 fixed test cases, one per four-class label.
 - `label_mapping.json`: numeric label mappings.
 - `checksums_sha256.csv`: file size and SHA256 checksum for each image.
@@ -23,15 +23,22 @@ Four-class labels:
 - `副神经节瘤`
 - `淋巴瘤`
 
-Fine labels currently present:
+Current fine labels:
 
+- `DDLPS`
+- `WDLPS`
+- `LPS_unspecified`
 - `LMS`
 - `GN`
 - `SWN`
 - `PGL`
 - `LYM`
 
-This v0 dataset contains no liposarcoma cases yet. The `肉瘤类` cases are currently all `LMS`.
+Current dataset size:
+
+- 252 raw CT NIfTI images are present under `images/`.
+- 216 cases are mapped into the four-class label set.
+- 36 present cases are excluded from `labels.csv` because they are outside the current four-class task or lack a confident pathology match.
 
 ## Split
 
@@ -46,4 +53,3 @@ Recommended first-pass model input:
 - venous/portal-phase CT only
 - 2D or 2.5D slice-level MIL
 - dynamic multi-window slice transform during training
-

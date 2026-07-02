@@ -1,14 +1,42 @@
 {
   "name": "retroperitoneal_tumor_ct_dataset_standard_v0",
-  "n_cases": 41,
-  "n_train": 37,
+  "n_images_present": 252,
+  "n_main267_present": 252,
+  "n_labeled_4class": 216,
+  "n_train": 212,
   "n_test": 4,
-  "labels_4": [
-    "副神经节瘤",
-    "淋巴瘤",
-    "肉瘤类",
-    "良性神经源性肿瘤"
-  ],
+  "n_unlabeled_or_excluded": 36,
+  "labels_4_counts": {
+    "副神经节瘤": 13,
+    "良性神经源性肿瘤": 56,
+    "淋巴瘤": 44,
+    "肉瘤类": 103
+  },
+  "labels_7_counts": {
+    "PGL": 13,
+    "GN": 18,
+    "LYM": 44,
+    "SWN": 38,
+    "DDLPS": 34,
+    "LMS": 26,
+    "WDLPS": 32,
+    "LPS_unspecified": 11
+  },
+  "test_by_class": {
+    "副神经节瘤": "G0002",
+    "淋巴瘤": "G0008",
+    "良性神经源性肿瘤": "G0003",
+    "肉瘤类": "G0122"
+  },
   "images_are_raw_nifti": true,
-  "preprocessing_baked_in": false
+  "preprocessing_baked_in": false,
+  "source_dirs": [
+    "/Volumes/temp/YZQSave_main267/images_nii"
+  ],
+  "copy_summary": {
+    "temp_files_seen": 211,
+    "copied_from_temp": 211,
+    "skipped_existing": 0,
+    "copied_bytes": 25550291249
+  }
 }
