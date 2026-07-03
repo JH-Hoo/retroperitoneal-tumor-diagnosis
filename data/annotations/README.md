@@ -7,3 +7,5 @@ This folder stores lightweight de-identified annotation tables for experimental 
 `tumor_clicks_template.csv` is the expected manual input format for a later lesion-prompt experiment. ULS23-style lesion segmentation needs at least a lesion-centered point or VOI; TotalSegmentator alone is only used here as an anatomy prior.
 
 `tumor_clicks_pilot_30.csv` is the working table to fill before running a ULS23-style lesion VOI experiment. Coordinates should be original NIfTI voxel indices.
+
+`lesion_mask_review_template.csv` is the expected review format after candidate lesion masks are generated.

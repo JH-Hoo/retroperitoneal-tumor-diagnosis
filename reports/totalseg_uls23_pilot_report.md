@@ -39,6 +39,7 @@ Outputs:
 | QC contact sheets | `data/qc/contact_sheets/*.png` |
 | Tumor click working table | `data/annotations/tumor_clicks_pilot_30.csv` |
 | Tumor click reference sheets | `data/qc/tumor_click_sheets/*.png` |
+| ULS23 VOI status | `data/derived/uls23_vois/uls23_voi_status.csv` |
 
 ## Run Status
 
@@ -86,6 +87,12 @@ If the contact sheets show that the red ROI consistently covers the retroperiton
 ## ULS23 Readiness
 
 The ULS23-style stage is not run yet because it requires lesion-centered input. A working table has been prepared with 30 rows. Fill `x_voxel`, `y_voxel`, and `z_voxel` in original NIfTI voxel coordinates, then the next step is to crop lesion-centered VOIs and run the candidate mask proposer.
+
+Current VOI preparation status:
+
+|status|cases|
+|---|---|
+|missing_click|30|
 
 ## References
 
