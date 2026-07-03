@@ -15,6 +15,7 @@ data/tables/
 *.nii.gz
 data/cache_*/tensors/
 data/features_*/features/
+data/qc/contact_sheets/*.png
 
 # Model weights
 *.pt

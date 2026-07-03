@@ -1,0 +1,64 @@
+{
+  "case_id": "G0223",
+  "label_5": "PPGL",
+  "image": "data_private/standard/images/G0223.nii.gz",
+  "totalseg_dir": "data/segmentations/totalseg_pilot/G0223",
+  "bbox_ijk_exclusive": [
+    49,
+    470,
+    124,
+    455,
+    32,
+    425
+  ],
+  "image_shape": [
+    512,
+    512,
+    485
+  ],
+  "spacing_mm": [
+    0.853515625,
+    0.853515625,
+    1.0
+  ],
+  "margin_xy_mm": 70.0,
+  "margin_z_mm": 50.0,
+  "volume_fraction": 0.4307457284829051,
+  "fallback_full_volume": false,
+  "anchor_masks_found": [
+    "kidney_right",
+    "kidney_left",
+    "adrenal_gland_right",
+    "adrenal_gland_left",
+    "sacrum",
+    "vertebrae_S1",
+    "vertebrae_L5",
+    "vertebrae_L4",
+    "vertebrae_L3",
+    "vertebrae_L2",
+    "vertebrae_L1",
+    "aorta",
+    "inferior_vena_cava",
+    "iliac_artery_left",
+    "iliac_artery_right",
+    "iliac_vena_left",
+    "iliac_vena_right",
+    "iliopsoas_left",
+    "iliopsoas_right"
+  ],
+  "anchor_masks_missing": [],
+  "z_anchor_masks_found": [
+    "kidney_right",
+    "kidney_left",
+    "adrenal_gland_right",
+    "adrenal_gland_left",
+    "sacrum",
+    "vertebrae_S1",
+    "vertebrae_L5",
+    "vertebrae_L4",
+    "vertebrae_L3",
+    "vertebrae_L2",
+    "vertebrae_L1"
+  ],
+  "z_anchor_masks_missing": []
+}
