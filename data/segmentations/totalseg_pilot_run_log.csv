@@ -1,0 +1,31 @@
+﻿case_id,label_5,status,seconds,message,totalseg_dir
+G0097,肉瘤类,skipped_existing,0.0,,data/segmentations/totalseg_pilot/G0097
+G0121,肉瘤类,skipped_existing,0.0,,data/segmentations/totalseg_pilot/G0121
+G0286,肉瘤类,ok,108.2,"Collecting results: 100%|██████████| 1/1 [00:01<00:00,  1.96s/it]",data/segmentations/totalseg_pilot/G0286
+G0321,肉瘤类,ok,106.5,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.37s/it]",data/segmentations/totalseg_pilot/G0321
+G0334,肉瘤类,ok,119.2,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.16s/it]",data/segmentations/totalseg_pilot/G0334
+G0382,肉瘤类,ok,113.8,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.45s/it]",data/segmentations/totalseg_pilot/G0382
+G0003,良性神经源性肿瘤,ok,78.2,"Collecting results: 100%|██████████| 1/1 [00:01<00:00,  1.75s/it]",data/segmentations/totalseg_pilot/G0003
+G0160,良性神经源性肿瘤,ok,131.7,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.29s/it]",data/segmentations/totalseg_pilot/G0160
+G0178,良性神经源性肿瘤,ok,109.1,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.46s/it]",data/segmentations/totalseg_pilot/G0178
+G0191,良性神经源性肿瘤,ok,97.3,"Collecting results: 100%|██████████| 1/1 [00:01<00:00,  1.86s/it]",data/segmentations/totalseg_pilot/G0191
+G0285,良性神经源性肿瘤,ok,79.4,"Collecting results: 100%|██████████| 1/1 [00:01<00:00,  1.42s/it]",data/segmentations/totalseg_pilot/G0285
+G0409,良性神经源性肿瘤,ok,99.3,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.12s/it]",data/segmentations/totalseg_pilot/G0409
+G0018,PPGL,ok,106.5,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.35s/it]",data/segmentations/totalseg_pilot/G0018
+G0118,PPGL,ok,97.9,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.34s/it]",data/segmentations/totalseg_pilot/G0118
+G0146,PPGL,ok,56.4,"Collecting results: 100%|██████████| 1/1 [00:01<00:00,  1.19s/it]",data/segmentations/totalseg_pilot/G0146
+G0223,PPGL,ok,116.3,"Collecting results: 100%|██████████| 1/1 [00:01<00:00,  1.96s/it]",data/segmentations/totalseg_pilot/G0223
+G0238,PPGL,ok,98.2,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.39s/it]",data/segmentations/totalseg_pilot/G0238
+G0414,PPGL,ok,125.8,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.09s/it]",data/segmentations/totalseg_pilot/G0414
+G0015,淋巴瘤,ok,125.3,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.57s/it]",data/segmentations/totalseg_pilot/G0015
+G0019,淋巴瘤,ok,113.3,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.67s/it]",data/segmentations/totalseg_pilot/G0019
+G0053,淋巴瘤,ok,103.8,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.28s/it]",data/segmentations/totalseg_pilot/G0053
+G0076,淋巴瘤,ok,116.0,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.04s/it]",data/segmentations/totalseg_pilot/G0076
+G0079,淋巴瘤,ok,125.6,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.48s/it]",data/segmentations/totalseg_pilot/G0079
+G0084,淋巴瘤,ok,79.6,"Collecting results: 100%|██████████| 1/1 [00:01<00:00,  1.30s/it]",data/segmentations/totalseg_pilot/G0084
+G0246,胃肠道间质瘤,ok,111.7,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.07s/it]",data/segmentations/totalseg_pilot/G0246
+G0256,胃肠道间质瘤,ok,103.4,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.39s/it]",data/segmentations/totalseg_pilot/G0256
+G0257,胃肠道间质瘤,ok,121.4,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.12s/it]",data/segmentations/totalseg_pilot/G0257
+G0258,胃肠道间质瘤,ok,52.5,"Collecting results: 100%|██████████| 1/1 [00:01<00:00,  1.11s/it]",data/segmentations/totalseg_pilot/G0258
+G0266,胃肠道间质瘤,ok,120.6,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.16s/it]",data/segmentations/totalseg_pilot/G0266
+G0269,胃肠道间质瘤,ok,96.9,"Collecting results: 100%|██████████| 1/1 [00:02<00:00,  2.03s/it]",data/segmentations/totalseg_pilot/G0269
