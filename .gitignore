@@ -16,6 +16,7 @@ data/tables/
 data/cache_*/tensors/
 data/features_*/features/
 data/qc/contact_sheets/*.png
+data/qc/tumor_click_sheets/*.png
 
 # Model weights
 *.pt
