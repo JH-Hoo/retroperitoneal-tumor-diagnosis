@@ -1,0 +1,3 @@
+﻿patient_uid_hash,num_cases,case_ids,labels,folds
+fd5d9ac6b4e7412d4425ac5b,2,G0304;G0303,肉瘤类,3
+469316fe48ae14aa48510f2a,2,G0380;G0381,肉瘤类,1

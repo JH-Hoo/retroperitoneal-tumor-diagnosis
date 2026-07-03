@@ -1,0 +1,29 @@
+{
+  "name": "dataset_96slice_v0",
+  "source_dataset": "dataset_standard_v0",
+  "num_cases": 249,
+  "num_train": 210,
+  "num_test": 3,
+  "tensor_shape": [
+    96,
+    3,
+    224,
+    224
+  ],
+  "tensor_dtype": "uint8",
+  "windows": [
+    [
+      -160.0,
+      240.0
+    ],
+    [
+      -200.0,
+      100.0
+    ],
+    [
+      -200.0,
+      400.0
+    ]
+  ],
+  "normalization": "stored as 0-255 windowed images; divide by 255 and apply ImageNet mean/std at training time"
+}

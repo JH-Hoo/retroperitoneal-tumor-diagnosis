@@ -1,0 +1,27 @@
+.DS_Store
+__pycache__/
+*.pyc
+logs/
+
+# PHI and private linkage data stay local/remote only.
+data_private/
+data/tables/
+data/standard/
+data/labels_5class_holdout/
+data/cache_96slice/all.csv
+data/cache_96slice/labels.csv
+data/cache_96slice/metadata.csv
+data/cache_96slice/splits/
+
+# Heavy medical image data and model weights stay local/remote only.
+*.nii
+*.nii.gz
+*.pt
+*.pth
+data/standard/images/
+data/cache_96slice/tensors/
+
+# Old flat-layout data folders, kept ignored for safety if restored.
+dataset_*/images/
+dataset_*/tensors/
+experiments/**/*.pt
