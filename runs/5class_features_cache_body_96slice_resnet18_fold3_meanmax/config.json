@@ -1,0 +1,17 @@
+{
+  "task": "5class",
+  "pooling": "meanmax",
+  "fold": 3,
+  "feature_name": "features_cache_body_96slice_resnet18",
+  "epochs": 80,
+  "batch_size": 16,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "class_names": [
+    "肉瘤类",
+    "良性神经源性肿瘤",
+    "PPGL",
+    "淋巴瘤",
+    "胃肠道间质瘤"
+  ]
+}
