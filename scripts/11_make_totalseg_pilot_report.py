@@ -10,6 +10,7 @@ RUN_LOG = PROJECT_ROOT / "data" / "segmentations" / "totalseg_pilot_run_log.csv"
 ROI_SUMMARY = PROJECT_ROOT / "data" / "derived" / "retroperitoneal_roi" / "summary.csv"
 QC_CSV = PROJECT_ROOT / "data" / "qc" / "totalseg_contact_sheets.csv"
 CLICK_CSV = PROJECT_ROOT / "data" / "annotations" / "tumor_clicks_pilot_30.csv"
+VOI_STATUS_CSV = PROJECT_ROOT / "data" / "derived" / "uls23_vois" / "uls23_voi_status.csv"
 REPORT_PATH = PROJECT_ROOT / "reports" / "totalseg_uls23_pilot_report.md"
 
 
@@ -33,6 +34,7 @@ def main():
     roi_rows = read_rows(ROI_SUMMARY)
     qc_rows = read_rows(QC_CSV)
     click_rows = read_rows(CLICK_CSV)
+    voi_rows = read_rows(VOI_STATUS_CSV)
     class_counts = Counter(r["label_5"] for r in pilot)
     status_counts = Counter(r["status"] for r in run_log)
     ok_seconds = [float(r["seconds"]) for r in run_log if r["status"] == "ok" and r["seconds"]]
@@ -74,6 +76,8 @@ def main():
             ["metric", "value"],
         )
     roi_table = table(roi_payload, ["metric", "value"]) if roi_payload else "ROI JSON files have not been generated yet."
+    voi_counts = Counter(r["status"] for r in voi_rows)
+    voi_table = table([{"status": k, "cases": v} for k, v in voi_counts.items()], ["status", "cases"]) if voi_rows else "ULS23 VOI preparation has not been run yet."
 
     report = f"""# TotalSegmentator + ULS23 Pilot Branch
 
@@ -110,6 +114,7 @@ Outputs:
 | QC contact sheets | `data/qc/contact_sheets/*.png` |
 | Tumor click working table | `data/annotations/tumor_clicks_pilot_30.csv` |
 | Tumor click reference sheets | `data/qc/tumor_click_sheets/*.png` |
+| ULS23 VOI status | `data/derived/uls23_vois/uls23_voi_status.csv` |
 
 ## Run Status
 
@@ -134,6 +139,10 @@ If the contact sheets show that the red ROI consistently covers the retroperiton
 ## ULS23 Readiness
 
 The ULS23-style stage is not run yet because it requires lesion-centered input. A working table has been prepared with {len(click_rows)} rows. Fill `x_voxel`, `y_voxel`, and `z_voxel` in original NIfTI voxel coordinates, then the next step is to crop lesion-centered VOIs and run the candidate mask proposer.
+
+Current VOI preparation status:
+
+{voi_table}
 
 ## References
 
