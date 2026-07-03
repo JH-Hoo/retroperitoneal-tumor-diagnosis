@@ -2,6 +2,7 @@
 import csv
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import nibabel as nib
@@ -13,7 +14,9 @@ import torch.nn.functional as F
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PRIVATE_ROOT = PROJECT_ROOT / "data_private"
 RAW_ROOT = PRIVATE_ROOT / "standard"
-OUT_ROOT = PROJECT_ROOT / "data" / "cache_96slice"
+CACHE_NAME = os.environ.get("CACHE_NAME", "cache_96slice")
+BODY_CROP = os.environ.get("BODY_CROP", "0") == "1" or CACHE_NAME == "cache_body_96slice"
+OUT_ROOT = PROJECT_ROOT / "data" / CACHE_NAME
 TENSOR_DIR = OUT_ROOT / "tensors"
 AUDIT_ROOT = PRIVATE_ROOT / "audit"
 
@@ -32,10 +35,28 @@ def window_channel(x, low, high):
     return (x - low) / (high - low)
 
 
+def body_bbox_xy(vol, threshold=-500.0, pad=16):
+    mask = np.isfinite(vol) & (vol > threshold)
+    xy = mask.any(axis=2)
+    coords = np.argwhere(xy)
+    if len(coords) == 0:
+        return 0, vol.shape[0], 0, vol.shape[1], True
+    x0, y0 = coords.min(axis=0)
+    x1, y1 = coords.max(axis=0) + 1
+    x0 = max(0, x0 - pad)
+    y0 = max(0, y0 - pad)
+    x1 = min(vol.shape[0], x1 + pad)
+    y1 = min(vol.shape[1], y1 + pad)
+    return int(x0), int(x1), int(y0), int(y1), False
+
+
 def make_tensor_and_audit(case_id, nifti_path):
     raw_img = nib.load(str(nifti_path))
     img = nib.as_closest_canonical(raw_img)
     vol = np.asarray(img.get_fdata(dtype=np.float32))
+    x0, x1, y0, y1, crop_failed = body_bbox_xy(vol)
+    if BODY_CROP:
+        vol = vol[x0:x1, y0:y1, :]
     z = vol.shape[2]
     idx = np.linspace(0, z - 1, NUM_SLICES).round().astype(int)
     slices = vol[:, :, idx].transpose(2, 0, 1)
@@ -56,6 +77,9 @@ def make_tensor_and_audit(case_id, nifti_path):
         "intensity_max": f"{percentiles[4]:.3f}",
         "num_slices": z,
         "selected_slice_indices": ";".join(map(str, idx.tolist())),
+        "crop": "body" if BODY_CROP else "whole",
+        "body_bbox_xy": f"{x0}:{x1},{y0}:{y1}",
+        "body_crop_failed": str(crop_failed),
     }
     tensor = (x.clamp(0, 1).mul(255).round()).to(torch.uint8)
     return tensor, audit
@@ -68,7 +92,7 @@ def read_rows(path):
 
 def write_rows(path, rows):
     with path.open("w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -122,20 +146,22 @@ def main():
     write_rows(AUDIT_ROOT / "header_audit.csv", audit_rows)
 
     summary = {
-        "name": "cache_96slice",
+        "name": CACHE_NAME,
         "source_dataset": "data_private/standard",
         "num_cases": len(rows),
         "tensor_shape": [NUM_SLICES, 3, IMAGE_SIZE, IMAGE_SIZE],
         "tensor_dtype": "uint8",
+        "body_crop": BODY_CROP,
         "windows": WINDOWS,
         "normalization": "stored as 0-255 windowed images; divide by 255 and apply ImageNet mean/std at training time",
     }
     (OUT_ROOT / "dataset_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     (OUT_ROOT / "README.md").write_text(
-        "# Retroperitoneal Tumor CT Dataset 96-slice Cache\n\n"
+        f"# Retroperitoneal Tumor CT Dataset {CACHE_NAME}\n\n"
         "Offline preprocessed cache derived from private NIfTI files under `data_private/standard`.\n\n"
         "Each case is stored as one PyTorch tensor in `tensors/` with shape `96 x 3 x 224 x 224` and dtype `uint8`.\n"
         "The three channels are fixed CT windows: soft tissue `[-160, 240]`, fat-sensitive `[-200, 100]`, and wide abdomen `[-200, 400]`.\n"
+        f"Body crop: `{BODY_CROP}`.\n"
         "Training code should convert tensors to float, divide by 255, then apply ImageNet mean/std normalization.\n",
         encoding="utf-8",
     )

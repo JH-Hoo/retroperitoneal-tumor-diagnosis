@@ -1,0 +1,12 @@
+{
+  "name": "features_cache_96slice_resnet18",
+  "source_cache": "cache_96slice",
+  "backbone": "resnet18",
+  "pretrained": "ImageNet",
+  "num_cases": 246,
+  "feature_shape": [
+    96,
+    512
+  ],
+  "feature_dtype": "float16"
+}

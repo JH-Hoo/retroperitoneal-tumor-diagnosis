@@ -2,9 +2,9 @@
 
 ## What This Project Does
 
-This project trains a weakly supervised 2.5D attention MIL model for five-class retroperitoneal tumor diagnosis from contrast-enhanced CT.
+This project trains weakly supervised 2.5D MIL models for retroperitoneal tumor diagnosis from contrast-enhanced CT.
 
-The current baseline does not use tumor segmentation or manual lesion boxes. Each CT case is represented by 96 axial slices with three CT windows, then aggregated into a case-level prediction.
+The current baseline does not use tumor segmentation or manual lesion boxes. Each CT case is represented by 96 axial slices with three CT windows, then aggregated into a case-level prediction. The latest small-data experiment freezes a ResNet18 slice feature extractor and trains only a lightweight MIL head.
 
 ## Dataset
 
@@ -24,31 +24,39 @@ Raw NIfTI files, tensor cache files, source Excel sheets, linkage tables, hash s
   - soft tissue: `[-160, 240]`
   - fat-sensitive: `[-200, 100]`
   - wide abdomen: `[-200, 400]`
+- Cache variants: whole-abdomen and simple body crop
 - Backbone: ImageNet-pretrained ResNet18
-- Pooling: attention MIL
-- Training: freeze backbone for 5 epochs, then unfreeze `layer4`
-- BatchNorm: frozen/eval during training
+- Current preferred baseline: frozen slice features + mean/max MIL head
+- Earlier baseline: partial fine-tuning with attention MIL
 - Loss: class-weighted cross entropy
 
 ## Current Experiment
 
-Current run:
+Current frozen-feature fold 0 runs:
 
 ```text
-runs/5class_groupcv_fold0_resnet18_mil/
+runs/*features*_fold0_meanmax/
 ```
 
-Fold 0 results:
+Fold 0 test results:
 
-| Split | Accuracy | Balanced Accuracy | Macro-F1 | Weighted-F1 |
-|---|---:|---:|---:|---:|
-| Validation | 0.300 | 0.238 | 0.230 | 0.282 |
-| Test | 0.429 | 0.313 | 0.276 | 0.372 |
+| Task | Input | Accuracy | Balanced Accuracy | Macro-F1 | AUROC |
+|---|---|---:|---:|---:|---:|
+| Five-class | Whole | 0.367 | 0.258 | 0.218 |  |
+| Five-class | Body crop | 0.286 | 0.212 | 0.204 |  |
+| Sarcoma vs non | Whole | 0.776 | 0.741 | 0.749 | 0.751 |
+| Sarcoma vs non | Body crop | 0.694 | 0.607 | 0.597 | 0.659 |
+| PPGL vs non | Whole | 0.735 | 0.562 | 0.537 | 0.578 |
+| PPGL vs non | Body crop | 0.714 | 0.622 | 0.560 | 0.624 |
+| Lymphoma vs non | Whole | 0.653 | 0.518 | 0.517 | 0.462 |
+| Lymphoma vs non | Body crop | 0.531 | 0.558 | 0.510 | 0.521 |
+
+These fold 0 numbers are a smoke-test comparison, not a stable performance estimate.
 
 Report:
 
 ```text
-reports/5class_groupcv_fold0_report.md
+reports/fold0_frozen_feature_bodycrop_report.md
 ```
 
 ## How To Run
@@ -63,18 +71,33 @@ Build the 96-slice cache from private NIfTI files:
 
 ```bash
 python scripts/02_build_96slice_cache.py
+CACHE_NAME=cache_body_96slice BODY_CROP=1 python scripts/02_build_96slice_cache.py
 ```
 
-Train fold 0:
+Train the earlier partial fine-tuning fold 0 baseline:
 
 ```bash
 python scripts/03_train_mil.py
 ```
 
-Regenerate figures and report:
+Extract frozen ResNet18 features:
 
 ```bash
-python scripts/04_make_report.py
+CACHE_NAME=cache_96slice python scripts/03_extract_slice_features.py
+CACHE_NAME=cache_body_96slice python scripts/03_extract_slice_features.py
+```
+
+Train frozen-feature MIL heads:
+
+```bash
+FEATURE_NAME=features_cache_96slice_resnet18 TASK=5class POOLING=meanmax python scripts/04_train_mil_head.py
+FEATURE_NAME=features_cache_body_96slice_resnet18 TASK=ppgl POOLING=meanmax python scripts/04_train_mil_head.py
+```
+
+Regenerate the earlier fine-tuning report:
+
+```bash
+python scripts/05_make_report.py
 ```
 
 ## Repository Structure
@@ -92,4 +115,4 @@ Private local-only content lives under `data_private/` and is ignored by Git.
 
 ## Notes
 
-The current result is a lightweight baseline. It shows that the pipeline works, but it is not strong enough to claim stable clinical performance. The next useful step is body crop or lesion coarse crop, not a larger backbone.
+The current result is a lightweight baseline. It shows that the pipeline works, but it is not strong enough to claim stable clinical performance. The next useful step is full 5-fold frozen-feature evaluation, then retroperitoneal or lesion coarse crop, not a larger whole-volume model.

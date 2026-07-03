@@ -13,7 +13,8 @@ data/tables/
 # Medical images and tensor cache
 *.nii
 *.nii.gz
-data/cache_96slice/tensors/
+data/cache_*/tensors/
+data/features_*/features/
 
 # Model weights
 *.pt
