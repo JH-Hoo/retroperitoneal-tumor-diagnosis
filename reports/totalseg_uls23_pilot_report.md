@@ -37,6 +37,8 @@ Outputs:
 | ROI bbox JSON | `data/derived/retroperitoneal_roi/*.json` |
 | ROI summary | `data/derived/retroperitoneal_roi/summary.csv` |
 | QC contact sheets | `data/qc/contact_sheets/*.png` |
+| Tumor click working table | `data/annotations/tumor_clicks_pilot_30.csv` |
+| Tumor click reference sheets | `data/qc/tumor_click_sheets/*.png` |
 
 ## Run Status
 
@@ -80,6 +82,10 @@ Outputs:
 This is an anatomy-prior experiment. It can answer whether a TotalSegmentator-derived retroperitoneal crop is technically usable and visually sane. It cannot answer whether the tumor itself is segmented, because the target lesion is not part of TotalSegmentator's anatomy labels.
 
 If the contact sheets show that the red ROI consistently covers the retroperitoneal tumor-bearing region, the next step is to build a 96-slice cache from this ROI and compare it against whole/body crops. If not, the margin or anchor set should be enlarged before trying ULS23.
+
+## ULS23 Readiness
+
+The ULS23-style stage is not run yet because it requires lesion-centered input. A working table has been prepared with 30 rows. Fill `x_voxel`, `y_voxel`, and `z_voxel` in original NIfTI voxel coordinates, then the next step is to crop lesion-centered VOIs and run the candidate mask proposer.
 
 ## References
 
