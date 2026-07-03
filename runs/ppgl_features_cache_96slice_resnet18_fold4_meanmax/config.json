@@ -1,0 +1,14 @@
+{
+  "task": "ppgl",
+  "pooling": "meanmax",
+  "fold": 4,
+  "feature_name": "features_cache_96slice_resnet18",
+  "epochs": 80,
+  "batch_size": 16,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "class_names": [
+    "non_ppgl",
+    "ppgl"
+  ]
+}

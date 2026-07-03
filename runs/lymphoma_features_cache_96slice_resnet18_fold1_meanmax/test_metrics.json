@@ -1,0 +1,22 @@
+{
+  "accuracy": 0.74,
+  "balanced_accuracy": 0.4625,
+  "macro_f1": 0.42528735632183906,
+  "weighted_f1": 0.6804597701149424,
+  "per_class_recall": [
+    0.925,
+    0.0
+  ],
+  "confusion_matrix": [
+    [
+      37,
+      3
+    ],
+    [
+      10,
+      0
+    ]
+  ],
+  "auroc": 0.5,
+  "average_precision": 0.22947158452753083
+}

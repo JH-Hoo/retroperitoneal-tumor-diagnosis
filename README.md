@@ -32,31 +32,35 @@ Raw NIfTI files, tensor cache files, source Excel sheets, linkage tables, hash s
 
 ## Current Experiment
 
-Current frozen-feature fold 0 runs:
+Current frozen-feature 5-fold runs:
 
 ```text
 runs/*features*_fold0_meanmax/
+runs/*features*_fold1_meanmax/
+runs/*features*_fold2_meanmax/
+runs/*features*_fold3_meanmax/
+runs/*features*_fold4_meanmax/
 ```
 
-Fold 0 test results:
+5-fold test results are reported as mean +/- standard deviation:
 
-| Task | Input | Accuracy | Balanced Accuracy | Macro-F1 | AUROC |
-|---|---|---:|---:|---:|---:|
-| Five-class | Whole | 0.367 | 0.258 | 0.218 |  |
-| Five-class | Body crop | 0.286 | 0.212 | 0.204 |  |
-| Sarcoma vs non | Whole | 0.776 | 0.741 | 0.749 | 0.751 |
-| Sarcoma vs non | Body crop | 0.694 | 0.607 | 0.597 | 0.659 |
-| PPGL vs non | Whole | 0.735 | 0.562 | 0.537 | 0.578 |
-| PPGL vs non | Body crop | 0.714 | 0.622 | 0.560 | 0.624 |
-| Lymphoma vs non | Whole | 0.653 | 0.518 | 0.517 | 0.462 |
-| Lymphoma vs non | Body crop | 0.531 | 0.558 | 0.510 | 0.521 |
+| Task | Input | Balanced Accuracy | Macro-F1 | AUROC |
+|---|---|---:|---:|---:|
+| Five-class | Whole | 0.252 +/- 0.071 | 0.234 +/- 0.060 |  |
+| Five-class | Body crop | 0.236 +/- 0.106 | 0.217 +/- 0.094 |  |
+| Sarcoma vs non | Whole | 0.571 +/- 0.108 | 0.568 +/- 0.110 | 0.591 +/- 0.119 |
+| Sarcoma vs non | Body crop | 0.581 +/- 0.066 | 0.561 +/- 0.087 | 0.600 +/- 0.048 |
+| PPGL vs non | Whole | 0.534 +/- 0.116 | 0.501 +/- 0.085 | 0.568 +/- 0.136 |
+| PPGL vs non | Body crop | 0.575 +/- 0.136 | 0.547 +/- 0.111 | 0.622 +/- 0.137 |
+| Lymphoma vs non | Whole | 0.487 +/- 0.112 | 0.473 +/- 0.107 | 0.508 +/- 0.117 |
+| Lymphoma vs non | Body crop | 0.498 +/- 0.103 | 0.480 +/- 0.091 | 0.510 +/- 0.086 |
 
-These fold 0 numbers are a smoke-test comparison, not a stable performance estimate.
+These numbers remain exploratory, but they are now patient-level 5-fold estimates instead of a single-fold smoke test.
 
 Report:
 
 ```text
-reports/fold0_frozen_feature_bodycrop_report.md
+reports/frozen_feature_meanmax_5fold_report.md
 ```
 
 ## How To Run
@@ -100,6 +104,12 @@ Regenerate the earlier fine-tuning report:
 python scripts/05_make_report.py
 ```
 
+Summarize frozen-feature 5-fold runs:
+
+```bash
+python scripts/06_summarize_frozen_5fold.py
+```
+
 ## Repository Structure
 
 ```text
@@ -115,4 +125,4 @@ Private local-only content lives under `data_private/` and is ignored by Git.
 
 ## Notes
 
-The current result is a lightweight baseline. It shows that the pipeline works, but it is not strong enough to claim stable clinical performance. The next useful step is full 5-fold frozen-feature evaluation, then retroperitoneal or lesion coarse crop, not a larger whole-volume model.
+The current result is a lightweight baseline. It shows that the pipeline works, but it is not strong enough to claim stable clinical performance. The next useful step is retroperitoneal or lesion coarse crop, not a larger whole-volume model.
