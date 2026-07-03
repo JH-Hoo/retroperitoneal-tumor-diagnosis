@@ -40,6 +40,7 @@ Outputs:
 | Tumor click working table | `data/annotations/tumor_clicks_pilot_30.csv` |
 | Tumor click reference sheets | `data/qc/tumor_click_sheets/*.png` |
 | ULS23 VOI status | `data/derived/uls23_vois/uls23_voi_status.csv` |
+| ULS23 candidate status | `data/segmentations/uls23_candidates/uls23_candidate_status.csv` |
 
 ## Run Status
 
@@ -93,6 +94,12 @@ Current VOI preparation status:
 |status|cases|
 |---|---|
 |missing_click|30|
+
+Current candidate segmentation status:
+
+|status|cases|
+|---|---|
+|missing_voi|30|
 
 ## References
 
