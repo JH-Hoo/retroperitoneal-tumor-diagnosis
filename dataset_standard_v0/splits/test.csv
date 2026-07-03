@@ -1,5 +1,0 @@
-﻿group,image,label_4,label_4_id,label_7,label_7_id,pathology_class,pathology_raw
-G0002,images/G0002.nii.gz,副神经节瘤,2,PGL,6,副神经节瘤,“后腹膜肿瘤”副神经节瘤。
-G0003,images/G0003.nii.gz,良性神经源性肿瘤,1,GN,4,节细胞神经瘤,"“左肾上腺肿瘤”,“左后腹膜肿块”:符合节细胞神经瘤。"
-G0008,images/G0008.nii.gz,淋巴瘤,3,LYM,7,淋巴瘤,“后腹膜穿刺1、2、3”淋巴组织增生，中等大小细胞弥漫分布，核分裂活跃，免疫组化示CD20阳性的B细胞增生为主，Fish检测示c－myc及Bcl2基因相关易位，符合非霍奇金淋巴瘤，B细胞性，高级别B细胞淋巴瘤。
-G0122,images/G0122.nii.gz,肉瘤类,0,LMS,3,平滑肌肉瘤,“后腹膜肿瘤”平滑肌肉瘤（13×10×8cm）。
