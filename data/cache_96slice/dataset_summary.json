@@ -1,9 +1,7 @@
 {
-  "name": "dataset_96slice_v0",
-  "source_dataset": "dataset_standard_v0",
+  "name": "cache_96slice",
+  "source_dataset": "data_private/standard",
   "num_cases": 249,
-  "num_train": 210,
-  "num_test": 3,
   "tensor_shape": [
     96,
     3,
