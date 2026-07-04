@@ -2,7 +2,6 @@
 import csv
 import hashlib
 import json
-import os
 from pathlib import Path
 
 import torch
@@ -10,8 +9,8 @@ from torchvision.models import ResNet18_Weights, resnet18
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-CACHE_NAME = os.environ.get("CACHE_NAME", "cache_96slice")
-FEATURE_NAME = os.environ.get("FEATURE_NAME", f"features_{CACHE_NAME}_resnet18")
+CACHE_NAME = "cache_96slice"
+FEATURE_NAME = "features_cache_96slice_resnet18"
 LABEL_CSV = PROJECT_ROOT / "data" / "labels" / "labels_5class.csv"
 CACHE_DIR = PROJECT_ROOT / "data" / CACHE_NAME / "tensors"
 OUT_DIR = PROJECT_ROOT / "data" / FEATURE_NAME

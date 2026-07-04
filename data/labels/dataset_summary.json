@@ -1,23 +1,37 @@
 {
-  "name": "labels_5class",
+  "name": "binary_nonbenign",
+  "task": "benign_neurogenic_vs_nonbenign_actionable",
+  "source_case_table": "data/labels/labels_5class.csv",
   "source": "data_private/standard/all.csv with PHI stripped",
   "num_cases": 246,
   "num_patients": 244,
   "n_splits": 5,
   "split_method": "StratifiedGroupKFold by salted patient_uid_hash",
   "class_names": [
-    "肉瘤类",
-    "良性神经源性肿瘤",
-    "PPGL",
-    "淋巴瘤",
-    "胃肠道间质瘤"
+    "benign_neurogenic",
+    "nonbenign_actionable"
   ],
   "class_counts": {
-    "PPGL": 30,
+    "benign_neurogenic": 55,
+    "nonbenign_actionable": 191
+  },
+  "source_label_5_counts": {
+    "肉瘤类": 103,
     "良性神经源性肿瘤": 55,
     "淋巴瘤": 44,
-    "肉瘤类": 103,
+    "PPGL": 30,
     "胃肠道间质瘤": 14
+  },
+  "binary_mapping": {
+    "benign_neurogenic": [
+      "良性神经源性肿瘤"
+    ],
+    "nonbenign_actionable": [
+      "肉瘤类",
+      "淋巴瘤",
+      "PPGL",
+      "胃肠道间质瘤"
+    ]
   },
   "fold_counts": {
     "0": 49,
@@ -26,8 +40,6 @@
     "3": 50,
     "4": 48
   },
-  "duplicate_patient_count": 2,
-  "legacy_cross_split_patient_count": 0,
   "excluded_bad_groups": [
     "G0122",
     "G0137",
@@ -38,22 +50,5 @@
     "G0224",
     "G0296"
   ],
-  "manual_matches": {
-    "G0186": [
-      "PPGL",
-      "副神经节瘤",
-      "PGL_manual_match"
-    ],
-    "G0326": [
-      "肉瘤类",
-      "脂肪肉瘤",
-      "WDLPS_manual_match"
-    ],
-    "G0365": [
-      "肉瘤类",
-      "脂肪肉瘤",
-      "LPS_manual_match"
-    ]
-  },
   "phi_policy": "GitHub keeps only deidentified labels and splits; salt and PHI audit stay in data_private/ and are gitignored."
 }

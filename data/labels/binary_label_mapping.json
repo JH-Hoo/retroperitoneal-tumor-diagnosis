@@ -1,0 +1,20 @@
+{
+  "task": "benign_neurogenic_vs_nonbenign_actionable",
+  "description": "Screening-style binary task, not strict pathology-level benign-vs-malignant diagnosis.",
+  "classes": [
+    {
+      "id": 0,
+      "name": "benign_neurogenic",
+      "source_label_5": ["良性神经源性肿瘤"],
+      "count": 55
+    },
+    {
+      "id": 1,
+      "name": "nonbenign_actionable",
+      "source_label_5": ["肉瘤类", "淋巴瘤", "PPGL", "胃肠道间质瘤"],
+      "count": 191
+    }
+  ],
+  "total_cases": 246,
+  "ppgl_policy": "PPGL is included in the positive class because it is clinically actionable and should not be mixed with ordinary benign neurogenic tumors."
+}

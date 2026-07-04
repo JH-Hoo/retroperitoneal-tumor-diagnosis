@@ -15,11 +15,6 @@ data/tables/
 *.nii.gz
 data/cache_*/tensors/
 data/features_*/features/
-data/qc/contact_sheets/*.png
-data/qc/tumor_click_sheets/*.png
-data/derived/uls23_vois/*.nii.gz
-data/segmentations/uls23_candidates/**/*.nii.gz
-data/qc/uls23_review_sheets/*.png
 
 # Model weights
 *.pt
