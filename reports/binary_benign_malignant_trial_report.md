@@ -64,7 +64,7 @@
 | 年龄/性别 only，sens85 阈值 | 0.805 | 0.661 | 0.679 | 0.921 | 0.400 | 0.671 | 0.869 | `[[22,33],[15,176]]` |
 | 图像 only mean/max，固定 0.5 | 0.732 | 0.614 | 0.614 | 0.827 | 0.400 | 0.666 | 0.869 | `[[22,33],[33,158]]` |
 | 图像 only gated attention，固定 0.5 | 0.667 | 0.656 | 0.610 | 0.675 | 0.636 | 0.643 | 0.850 | `[[35,20],[62,129]]` |
-| 推荐筛查点：metadata + gated MIL fusion，sens85 阈值 | 0.813 | 0.679 | 0.698 | 0.921 | 0.436 | 0.642 | 0.833 | `[[24,31],[15,176]]` |
+| 推荐筛查点：metadata + image MIL equal fusion，sens90 阈值 | 0.821 | 0.691 | 0.711 | 0.927 | 0.455 | 0.670 | 0.848 | `[[25,30],[14,177]]` |
 | 推荐平衡点：metadata + image-only mean/max late fusion，sens85 阈值 | 0.805 | 0.680 | 0.694 | 0.906 | 0.455 | 0.712 | 0.871 | `[[25,30],[18,173]]` |
 | 更高 specificity 点：metadata + baseline fusion，固定 0.5 | 0.785 | 0.686 | 0.688 | 0.864 | 0.509 | 0.698 | 0.863 | `[[28,27],[26,165]]` |
 
@@ -77,26 +77,26 @@
 如果目标是筛查，最担心的是“非良性/需处理病变被判成良性神经源性肿瘤”，也就是 false negative。按这个目标，当前更适合作为主结果的是：
 
 ```text
-metadata + gated MIL fusion，validation sens85 threshold
-Accuracy 0.813
-Balanced Accuracy 0.679
-Macro-F1 0.698
-Sensitivity 0.921
-Specificity 0.436
-Confusion Matrix [[24,31],[15,176]]
+metadata + image MIL equal fusion，validation sens90 threshold
+Accuracy 0.821
+Balanced Accuracy 0.691
+Macro-F1 0.711
+Sensitivity 0.927
+Specificity 0.455
+Confusion Matrix [[25,30],[14,177]]
 ```
 
 它相对旧主线的变化是：
 
 | 指标 | 旧主线 | 当前推荐筛查点 |
 |---|---:|---:|
-| False negative | 19 | 15 |
-| False positive | 33 | 31 |
-| Accuracy | 0.789 | 0.813 |
-| Balanced Acc | 0.650 | 0.679 |
-| Macro-F1 | 0.664 | 0.698 |
-| Sensitivity | 0.901 | 0.921 |
-| Specificity | 0.400 | 0.436 |
+| False negative | 19 | 14 |
+| False positive | 33 | 30 |
+| Accuracy | 0.789 | 0.821 |
+| Balanced Acc | 0.650 | 0.691 |
+| Macro-F1 | 0.664 | 0.711 |
+| Sensitivity | 0.901 | 0.927 |
+| Specificity | 0.400 | 0.455 |
 
 也就是说，它没有只靠“更激进地全判阳性”来提高 sensitivity，而是在 false negative 和 false positive 上都比旧主线略好。
 
@@ -104,17 +104,17 @@ Confusion Matrix [[24,31],[15,176]]
 
 ## 亚型表现
 
-推荐筛查点 `metadata + gated MIL fusion` 的 pooled subtype recall：
+推荐筛查点 `metadata + image MIL equal fusion` 的 pooled subtype recall：
 
 | 原 5 类 | n | 二分类目标 | Recall |
 |---|---:|---:|---:|
-| 肉瘤类 | 103 | 非良性/需处理 | 0.942 |
-| 良性神经源性肿瘤 | 55 | 良性神经源性肿瘤 | 0.436 |
-| PPGL | 30 | 非良性/需处理 | 0.867 |
-| 淋巴瘤 | 44 | 非良性/需处理 | 0.909 |
-| 胃肠道间质瘤 | 14 | 非良性/需处理 | 0.929 |
+| 肉瘤类 | 103 | 非良性/需处理 | 0.932 |
+| 良性神经源性肿瘤 | 55 | 良性神经源性肿瘤 | 0.455 |
+| PPGL | 30 | 非良性/需处理 | 0.933 |
+| 淋巴瘤 | 44 | 非良性/需处理 | 0.932 |
+| 胃肠道间质瘤 | 14 | 非良性/需处理 | 0.857 |
 
-主要短板仍是良性神经源性肿瘤的 specificity/recall 不高，55 例里只有 24 例被正确识别为良性，31 例被模型判为非良性/需处理。
+主要短板仍是良性神经源性肿瘤的 specificity/recall 不高，55 例里只有 25 例被正确识别为良性，30 例被模型判为非良性/需处理。
 
 ## 结论
 
@@ -122,6 +122,6 @@ Confusion Matrix [[24,31],[15,176]]
 
 1. 二分类方向比五分类更适合当前数据。
 2. 年龄/性别本身已经很强，必须作为对照报告，不能把所有提升都归因于 CT 影像。
-3. 在不做 ROI、不做中心点、不做分割的前提下，轻量 late fusion 可以把旧主线从 `[[22,33],[19,172]]` 推到 `[[24,31],[15,176]]` 或 `[[25,30],[18,173]]`，属于有价值但仍有限的提升。
+3. 在不做 ROI、不做中心点、不做分割的前提下，轻量 late fusion 可以把旧主线从 `[[22,33],[19,172]]` 推到 `[[25,30],[14,177]]` 或 `[[25,30],[18,173]]`，属于有价值但仍有限的提升。
 
 下一步如果要继续提高 specificity，最可能有效的不是再堆复杂 head，而是引入极低成本的人工肿瘤中心点、粗框或 lesion crop，让模型少看无关背景。

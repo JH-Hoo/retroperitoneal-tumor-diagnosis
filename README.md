@@ -47,13 +47,13 @@ pooled confusion matrix covers all 246 cases.
 | Setting | Accuracy | Balanced Accuracy | Macro-F1 | Sensitivity | Specificity | AUROC | Confusion Matrix |
 |---|---:|---:|---:|---:|---:|---:|---|
 | Previous ResNet18 + age/sex baseline | 0.789 | 0.650 | 0.664 | 0.901 | 0.400 | 0.698 | `[[22,33],[19,172]]` |
-| High-sensitivity ensemble: metadata + gated MIL fusion | 0.813 | 0.679 | 0.698 | 0.921 | 0.436 | 0.642 | `[[24,31],[15,176]]` |
+| Current high-sensitivity fusion: metadata + image MIL ensemble | 0.821 | 0.691 | 0.711 | 0.927 | 0.455 | 0.670 | `[[25,30],[14,177]]` |
 | Balanced late fusion: metadata + image-only mean/max MIL | 0.805 | 0.680 | 0.694 | 0.906 | 0.455 | 0.712 | `[[25,30],[18,173]]` |
 
-The first optimized setting is the current screening-favored result because it
-reduces missed non-benign/actionable cases from 19 to 15. The late-fusion setting
-is a cleaner image-plus-tabular control and gives better AUROC/specificity while
-keeping sensitivity above 0.90.
+The current high-sensitivity fusion is the screening-favored result because it
+reduces missed non-benign/actionable cases from 19 to 14. The late-fusion setting
+is a cleaner image-plus-tabular control and gives better AUROC while keeping
+sensitivity above 0.90.
 
 These numbers are still exploratory cross-validation results, not clinical
 validation.
@@ -62,6 +62,7 @@ Detailed report:
 
 ```text
 reports/binary_benign_malignant_trial_report.md
+reports/multiview_augmentation_trial_20260704.md
 reports/腹膜后肿瘤CT二分类筛查模型技术报告.md
 reports/腹膜后肿瘤CT二分类筛查模型技术报告.pdf
 ```

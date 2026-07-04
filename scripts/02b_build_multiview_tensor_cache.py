@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import os
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import nibabel as nib
@@ -23,6 +24,7 @@ AUDIT_ROOT = PRIVATE_ROOT / "audit"
 NUM_SLICES = int(os.environ.get("NUM_SLICES", "96"))
 IMAGE_SIZE = int(os.environ.get("IMAGE_SIZE", "224"))
 NUM_VIEWS = int(os.environ.get("NUM_VIEWS", "5"))
+NUM_WORKERS = int(os.environ.get("NUM_WORKERS", "8"))
 SEED = int(os.environ.get("SEED", "20260704"))
 WINDOWS = [
     (-160.0, 240.0),
@@ -81,22 +83,10 @@ def view_config(view_id, rng):
     return "z_jitter_window_jitter_seeded", jitter_indices, windows, False, False
 
 
-def make_tensor_and_audit(case_id, nifti_path, view_id, case_seed):
+def view_metadata(case_id, raw_img, img, vol, view_id, case_seed):
     rng = np.random.default_rng(case_seed + view_id)
-    raw_img = nib.load(str(nifti_path))
-    img = nib.as_closest_canonical(raw_img)
-    vol = np.asarray(img.get_fdata(dtype=np.float32))
     mode, index_fn, windows, do_affine, do_noise = view_config(view_id, rng)
     idx = index_fn(vol.shape[2], rng) if index_fn is jitter_indices else index_fn(vol.shape[2])
-    slices = vol[:, :, idx].transpose(2, 0, 1)
-    channels = [window_channel(slices, low, high) for low, high in windows]
-    x = torch.from_numpy(np.stack(channels, axis=1).astype(np.float32))
-    x = F.interpolate(x, size=(IMAGE_SIZE, IMAGE_SIZE), mode="bilinear", align_corners=False)
-    if do_affine:
-        x = apply_mild_affine(x, rng)
-    if do_noise:
-        x = x + torch.randn_like(x) * 0.01
-    tensor = (x.clamp(0, 1).mul(255).round()).to(torch.uint8)
     audit = {
         "case_id": case_id,
         "view_id": view_id,
@@ -111,7 +101,21 @@ def make_tensor_and_audit(case_id, nifti_path, view_id, case_seed):
         "noise": int(do_noise),
         "crop": "whole",
     }
-    return tensor, audit
+    return rng, idx, windows, do_affine, do_noise, audit
+
+
+def make_tensor_from_volume(vol, idx, windows, do_affine, do_noise, rng, torch_seed):
+    slices = vol[:, :, idx].transpose(2, 0, 1)
+    channels = [window_channel(slices, low, high) for low, high in windows]
+    x = torch.from_numpy(np.stack(channels, axis=1).astype(np.float32))
+    x = F.interpolate(x, size=(IMAGE_SIZE, IMAGE_SIZE), mode="bilinear", align_corners=False)
+    if do_affine:
+        x = apply_mild_affine(x, rng)
+    if do_noise:
+        gen = torch.Generator()
+        gen.manual_seed(torch_seed)
+        x = x + torch.randn(x.shape, generator=gen) * 0.01
+    return (x.clamp(0, 1).mul(255).round()).to(torch.uint8)
 
 
 def read_rows(path):
@@ -136,33 +140,67 @@ def sha256(path):
     return h.hexdigest()
 
 
+def process_case(i, total, r):
+    torch.set_num_threads(1)
+    case_id = r["group"]
+    case_seed = SEED + i * 1000
+    raw_img = nib.load(str(RAW_ROOT / r["image"]))
+    img = nib.as_closest_canonical(raw_img)
+    vol = np.asarray(img.get_fdata(dtype=np.float32))
+    checksum_rows, audit_rows = [], []
+    generated, skipped = 0, 0
+    for view_id in range(NUM_VIEWS):
+        rng, idx, windows, do_affine, do_noise, audit = view_metadata(case_id, raw_img, img, vol, view_id, case_seed)
+        rel = f"tensors/{case_id}_view{view_id}.pt"
+        out_path = OUT_ROOT / rel
+        if out_path.exists():
+            skipped += 1
+        else:
+            tensor = make_tensor_from_volume(vol, idx, windows, do_affine, do_noise, rng, case_seed + view_id)
+            torch.save(tensor, out_path)
+            generated += 1
+        audit_rows.append(audit)
+        checksum_rows.append(
+            {
+                "case_id": case_id,
+                "view_id": view_id,
+                "tensor": rel,
+                "shape": f"{NUM_SLICES},3,{IMAGE_SIZE},{IMAGE_SIZE}",
+                "dtype": "uint8",
+                "bytes": out_path.stat().st_size,
+                "sha256": sha256(out_path),
+            }
+        )
+    return f"{i:03d}/{total} {case_id} generated={generated} skipped={skipped}", checksum_rows, audit_rows
+
+
 def main():
     OUT_ROOT.mkdir(parents=True, exist_ok=True)
     TENSOR_DIR.mkdir(parents=True, exist_ok=True)
     AUDIT_ROOT.mkdir(parents=True, exist_ok=True)
     rows = [r for r in read_rows(RAW_ROOT / "all.csv") if r["group"] not in BAD_GROUPS]
     checksum_rows, audit_rows = [], []
-    for i, r in enumerate(rows, 1):
-        case_id = r["group"]
-        case_seed = SEED + i * 1000
-        for view_id in range(NUM_VIEWS):
-            tensor, audit = make_tensor_and_audit(case_id, RAW_ROOT / r["image"], view_id, case_seed)
-            rel = f"tensors/{case_id}_view{view_id}.pt"
-            out_path = OUT_ROOT / rel
-            torch.save(tensor, out_path)
-            audit_rows.append(audit)
-            checksum_rows.append(
-                {
-                    "case_id": case_id,
-                    "view_id": view_id,
-                    "tensor": rel,
-                    "shape": f"{NUM_SLICES},3,{IMAGE_SIZE},{IMAGE_SIZE}",
-                    "dtype": "uint8",
-                    "bytes": out_path.stat().st_size,
-                    "sha256": sha256(out_path),
-                }
-            )
-        print(f"{i:03d}/{len(rows)} {case_id} views={NUM_VIEWS}")
+    if NUM_WORKERS <= 1:
+        results = [process_case(i, len(rows), r) for i, r in enumerate(rows, 1)]
+    else:
+        with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
+            futures = [executor.submit(process_case, i, len(rows), r) for i, r in enumerate(rows, 1)]
+            results = []
+            for future in as_completed(futures):
+                result = future.result()
+                results.append(result)
+                print(result[0], flush=True)
+
+    if NUM_WORKERS <= 1:
+        for result in results:
+            print(result[0], flush=True)
+
+    for _, case_checksum_rows, case_audit_rows in results:
+        checksum_rows.extend(case_checksum_rows)
+        audit_rows.extend(case_audit_rows)
+
+    checksum_rows.sort(key=lambda x: (x["case_id"], int(x["view_id"])))
+    audit_rows.sort(key=lambda x: (x["case_id"], int(x["view_id"])))
 
     write_rows(OUT_ROOT / "tensors_sha256.csv", checksum_rows)
     write_rows(AUDIT_ROOT / f"header_audit_{CACHE_NAME}.csv", audit_rows)
