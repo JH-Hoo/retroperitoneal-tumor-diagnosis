@@ -23,6 +23,7 @@ data/features_*/features/
 
 # Local logs and trackers
 logs/
+runs/
 wandb/
 
 # Old flat-layout folders if restored locally

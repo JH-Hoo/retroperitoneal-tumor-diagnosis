@@ -33,6 +33,9 @@ RUN_NAME = os.environ.get(
 )
 OUT_DIR = PROJECT_ROOT / "runs" / RUN_NAME
 FEATURE_DIR = PROJECT_ROOT / "data" / FEATURE_NAME / "features"
+NUM_VIEWS = int(os.environ.get("NUM_VIEWS", "1"))
+TRAIN_VIEW_MODE = os.environ.get("TRAIN_VIEW_MODE", "random")
+TEST_VIEW_MODE = os.environ.get("TEST_VIEW_MODE", "mean")
 
 EPOCHS = int(os.environ.get("EPOCHS", "80"))
 BATCH_SIZE = int(os.environ.get("BATCH_SIZE", "16"))
@@ -103,16 +106,34 @@ class TabularEncoder:
 
 
 class BinaryBags(Dataset):
-    def __init__(self, rows, tabular_encoder):
+    def __init__(self, rows, tabular_encoder, train=False):
         self.rows = rows
         self.tabular_encoder = tabular_encoder
+        self.train = train
 
     def __len__(self):
         return len(self.rows)
 
+    def feature_path(self, case_id, view_id=None):
+        if NUM_VIEWS <= 1:
+            return FEATURE_DIR / f"{case_id}.pt"
+        return FEATURE_DIR / f"{case_id}_view{view_id}.pt"
+
+    def load_feature(self, case_id):
+        if NUM_VIEWS <= 1:
+            return torch.load(self.feature_path(case_id), map_location="cpu", weights_only=False).float()
+        if self.train:
+            view_id = np.random.randint(0, NUM_VIEWS) if TRAIN_VIEW_MODE == "random" else 0
+            return torch.load(self.feature_path(case_id, view_id), map_location="cpu", weights_only=False).float()
+        if TEST_VIEW_MODE == "mean":
+            return torch.stack(
+                [torch.load(self.feature_path(case_id, v), map_location="cpu", weights_only=False).float() for v in range(NUM_VIEWS)]
+            )
+        return torch.load(self.feature_path(case_id, 0), map_location="cpu", weights_only=False).float()
+
     def __getitem__(self, i):
         row = self.rows[i]
-        feat = torch.load(FEATURE_DIR / f"{row['case_id']}.pt", map_location="cpu").float()
+        feat = self.load_feature(row["case_id"])
         tab = self.tabular_encoder.encode(row)
         return (
             feat,
@@ -276,6 +297,17 @@ def make_sampler(rows):
         labels = [r["label_5"] for r in rows]
         counts = {x: labels.count(x) for x in set(labels)}
         weights = np.asarray([1.0 / counts[x] for x in labels], dtype=np.float64)
+    elif SAMPLER == "binary50_subtype50":
+        labels = [r["label_5"] for r in rows]
+        counts = {x: labels.count(x) for x in set(labels)}
+        desired = {
+            "良性神经源性肿瘤": 0.50,
+            "肉瘤类": 0.125,
+            "淋巴瘤": 0.125,
+            "PPGL": 0.125,
+            "胃肠道间质瘤": 0.125,
+        }
+        weights = np.asarray([desired[x] / counts[x] for x in labels], dtype=np.float64)
     else:
         raise ValueError(f"unknown SAMPLER: {SAMPLER}")
     return WeightedRandomSampler(torch.DoubleTensor(weights), num_samples=len(rows), replacement=True)
@@ -327,9 +359,17 @@ def collect_predictions(model, loader, dev):
     rows = []
     for feat, tab, y, _, case_ids, labels in loader:
         feat, tab = feat.to(dev), tab.to(dev)
-        logits, _, weights = model(feat, tab)
-        prob = torch.softmax(logits, dim=1).cpu().numpy()
-        weights = weights.cpu().numpy()
+        if feat.dim() == 4:
+            b, v, s, d = feat.shape
+            feat_flat = feat.reshape(b * v, s, d)
+            tab_flat = tab.unsqueeze(1).expand(b, v, tab.shape[1]).reshape(b * v, tab.shape[1])
+            logits, _, weights = model(feat_flat, tab_flat)
+            prob = torch.softmax(logits, dim=1).reshape(b, v, 2).mean(dim=1).cpu().numpy()
+            weights = weights.reshape(b, v, s).mean(dim=1).cpu().numpy()
+        else:
+            logits, _, weights = model(feat, tab)
+            prob = torch.softmax(logits, dim=1).cpu().numpy()
+            weights = weights.cpu().numpy()
         for i, case_id in enumerate(case_ids):
             rows.append(
                 {
@@ -391,8 +431,10 @@ def choose_threshold(rows, mode, min_sensitivity):
         mode, min_sensitivity = "screening", 0.85
     y = np.asarray([int(r["true_id"]) for r in rows])
     p = np.asarray([float(r["prob_nonbenign_actionable"]) for r in rows])
-    thresholds = np.unique(np.r_[0.0, p, 1.0])
-    best_t, best_score = 0.5, -1e18
+    unique_p = np.sort(np.unique(p))
+    midpoints = (unique_p[:-1] + unique_p[1:]) / 2 if len(unique_p) > 1 else unique_p
+    thresholds = np.unique(np.r_[0.0, midpoints, 1.0])
+    best_t, best_key = 0.5, None
     for t in thresholds:
         pred = (p >= t).astype(int)
         tn, fp, fn, tp = confusion_matrix(y, pred, labels=[0, 1]).ravel()
@@ -400,15 +442,18 @@ def choose_threshold(rows, mode, min_sensitivity):
         spec = tn / (tn + fp) if tn + fp else 0.0
         bacc = 0.5 * (sens + spec)
         if mode == "youden":
-            score = sens + spec - 1.0
+            key = (sens + spec - 1.0, t, -abs(t - 0.5))
         elif mode == "balanced_accuracy":
-            score = bacc
+            key = (bacc, t, -abs(t - 0.5))
         elif mode == "screening":
-            score = spec if sens >= min_sensitivity else sens - min_sensitivity - 1.0
+            if sens >= min_sensitivity:
+                key = (1, spec, t, -abs(t - 0.5))
+            else:
+                key = (0, sens, spec, t)
         else:
             raise ValueError(f"unknown THRESHOLD_MODE: {mode}")
-        if score > best_score:
-            best_score = score
+        if best_key is None or key > best_key:
+            best_key = key
             best_t = float(t)
     return best_t
 
@@ -420,6 +465,12 @@ def selection_score(metrics):
         return metrics["balanced_accuracy"]
     if SELECT_METRIC == "youden":
         return metrics["sensitivity"] + metrics["specificity"] - 1.0
+    if SELECT_METRIC == "auroc":
+        return metrics.get("auroc", -1e18)
+    if SELECT_METRIC == "average_precision":
+        return metrics.get("average_precision", -1e18)
+    if SELECT_METRIC == "rank_score":
+        return 0.7 * metrics.get("auroc", 0.0) + 0.3 * metrics.get("average_precision", 0.0)
     if SELECT_METRIC == "screening":
         if metrics["sensitivity"] >= MIN_SENSITIVITY:
             return metrics["specificity"]
@@ -451,7 +502,7 @@ def subtype_metrics(rows, threshold):
 def loader_for(rows, tabular_encoder, train=False):
     sampler = make_sampler(rows) if train else None
     return DataLoader(
-        BinaryBags(rows, tabular_encoder),
+        BinaryBags(rows, tabular_encoder, train=train),
         batch_size=BATCH_SIZE,
         shuffle=(train and sampler is None),
         sampler=sampler,
@@ -477,7 +528,8 @@ def main():
     best_score, best_threshold, log_rows = -1e18, 0.5, []
     print(
         f"binary_nonbenign fold={FOLD} train/val/test={len(train_rows)}/{len(val_rows)}/{len(test_rows)} "
-        f"pooling={POOLING} fusion={FUSION} sampler={SAMPLER} loss={LOSS} threshold={THRESHOLD_MODE}",
+        f"pooling={POOLING} fusion={FUSION} sampler={SAMPLER} loss={LOSS} threshold={THRESHOLD_MODE} "
+        f"select={SELECT_METRIC} views={NUM_VIEWS}",
         flush=True,
     )
 
@@ -558,6 +610,9 @@ def main():
                 "fold": FOLD,
                 "pooling": POOLING,
                 "fusion": FUSION,
+                "num_views": NUM_VIEWS,
+                "train_view_mode": TRAIN_VIEW_MODE,
+                "test_view_mode": TEST_VIEW_MODE,
                 "sampler": SAMPLER,
                 "loss": LOSS,
                 "select_metric": SELECT_METRIC,
