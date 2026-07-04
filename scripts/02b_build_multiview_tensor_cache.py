@@ -25,13 +25,30 @@ NUM_SLICES = int(os.environ.get("NUM_SLICES", "96"))
 IMAGE_SIZE = int(os.environ.get("IMAGE_SIZE", "224"))
 NUM_VIEWS = int(os.environ.get("NUM_VIEWS", "5"))
 NUM_WORKERS = int(os.environ.get("NUM_WORKERS", "8"))
+SLICE_MODE = os.environ.get("SLICE_MODE", "uniform")
+BODY_THRESHOLD = float(os.environ.get("BODY_THRESHOLD", "-500"))
+BODY_Z_AREA_FRAC = float(os.environ.get("BODY_Z_AREA_FRAC", "0.01"))
+BODY_Z_MARGIN_FRAC = float(os.environ.get("BODY_Z_MARGIN_FRAC", "0.05"))
 SEED = int(os.environ.get("SEED", "20260704"))
-WINDOWS = [
+DEFAULT_WINDOWS = [
     (-160.0, 240.0),
     (-200.0, 100.0),
     (-200.0, 400.0),
 ]
 BAD_GROUPS = {"G0122", "G0137", "G0369"}
+
+
+def parse_windows(text):
+    if not text:
+        return DEFAULT_WINDOWS
+    out = []
+    for part in text.split(";"):
+        low, high = part.split(",")
+        out.append((float(low), float(high)))
+    return out
+
+
+WINDOWS = parse_windows(os.environ.get("WINDOWS", ""))
 
 
 def window_channel(x, low, high):
@@ -47,6 +64,39 @@ def jitter_window(low, high, rng, center_delta=20.0, width_scale=0.10):
 
 def uniform_indices(z):
     return np.linspace(0, z - 1, NUM_SLICES).round().astype(int)
+
+
+def center_fraction_indices(z, frac):
+    pad = (1.0 - frac) / 2.0
+    start = int(round((z - 1) * pad))
+    end = int(round((z - 1) * (1.0 - pad)))
+    return np.linspace(start, end, NUM_SLICES).round().astype(int)
+
+
+def body_z_indices(vol):
+    z = vol.shape[2]
+    body = vol > BODY_THRESHOLD
+    areas = body.reshape(-1, z).sum(axis=0)
+    min_area = vol.shape[0] * vol.shape[1] * BODY_Z_AREA_FRAC
+    valid = np.where(areas > min_area)[0]
+    if len(valid) == 0:
+        return uniform_indices(z)
+    margin = int(round((valid[-1] - valid[0] + 1) * BODY_Z_MARGIN_FRAC))
+    start = max(0, int(valid[0]) - margin)
+    end = min(z - 1, int(valid[-1]) + margin)
+    return np.linspace(start, end, NUM_SLICES).round().astype(int)
+
+
+def base_indices(vol):
+    if SLICE_MODE == "uniform":
+        return uniform_indices(vol.shape[2])
+    if SLICE_MODE == "center80":
+        return center_fraction_indices(vol.shape[2], 0.80)
+    if SLICE_MODE == "center60":
+        return center_fraction_indices(vol.shape[2], 0.60)
+    if SLICE_MODE == "body_z":
+        return body_z_indices(vol)
+    raise ValueError(f"unknown SLICE_MODE: {SLICE_MODE}")
 
 
 def jitter_indices(z, rng):
@@ -72,21 +122,21 @@ def apply_mild_affine(x, rng):
 
 def view_config(view_id, rng):
     if view_id == 0:
-        return "uniform_fixed", uniform_indices, WINDOWS, False, False
+        return f"{SLICE_MODE}_fixed", "base", WINDOWS, False, False
     windows = [jitter_window(low, high, rng) for low, high in WINDOWS]
     if view_id == 1:
-        return "z_jitter_window_jitter", jitter_indices, windows, False, False
+        return "z_jitter_window_jitter", "jitter", windows, False, False
     if view_id == 2:
-        return "z_jitter_affine", jitter_indices, WINDOWS, True, False
+        return "z_jitter_affine", "jitter", WINDOWS, True, False
     if view_id == 3:
-        return "z_jitter_window_jitter_noise", jitter_indices, windows, False, True
-    return "z_jitter_window_jitter_seeded", jitter_indices, windows, False, False
+        return "z_jitter_window_jitter_noise", "jitter", windows, False, True
+    return "z_jitter_window_jitter_seeded", "jitter", windows, False, False
 
 
 def view_metadata(case_id, raw_img, img, vol, view_id, case_seed):
     rng = np.random.default_rng(case_seed + view_id)
-    mode, index_fn, windows, do_affine, do_noise = view_config(view_id, rng)
-    idx = index_fn(vol.shape[2], rng) if index_fn is jitter_indices else index_fn(vol.shape[2])
+    mode, index_mode, windows, do_affine, do_noise = view_config(view_id, rng)
+    idx = jitter_indices(vol.shape[2], rng) if index_mode == "jitter" else base_indices(vol)
     audit = {
         "case_id": case_id,
         "view_id": view_id,
@@ -96,6 +146,7 @@ def view_metadata(case_id, raw_img, img, vol, view_id, case_seed):
         "orientation_original": "".join(nib.aff2axcodes(raw_img.affine)),
         "orientation_canonical": "".join(nib.aff2axcodes(img.affine)),
         "selected_slice_indices": ";".join(map(str, idx.tolist())),
+        "slice_mode": SLICE_MODE,
         "windows": ";".join(f"{low:.2f},{high:.2f}" for low, high in windows),
         "affine": int(do_affine),
         "noise": int(do_noise),
@@ -211,7 +262,9 @@ def main():
         "num_views": NUM_VIEWS,
         "tensor_shape": [NUM_SLICES, 3, IMAGE_SIZE, IMAGE_SIZE],
         "tensor_dtype": "uint8",
-        "view0": "uniform 96 slices with fixed windows",
+        "slice_mode": SLICE_MODE,
+        "windows": WINDOWS,
+        "view0": f"{SLICE_MODE} {NUM_SLICES} slices with fixed windows",
         "augmentation": "z-jitter, window jitter, mild affine, mild Gaussian noise",
     }
     (OUT_ROOT / "dataset_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")

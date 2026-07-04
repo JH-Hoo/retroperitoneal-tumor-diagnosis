@@ -95,11 +95,18 @@ def main():
         for i, row in enumerate(rows, 1):
             case_id = row["case_id"]
             for view_id in range(NUM_VIEWS):
-                x = torch.load(CACHE_DIR / f"{case_id}_view{view_id}.pt", map_location="cpu", weights_only=False).float().div(255.0)
+                if NUM_VIEWS == 1:
+                    tensor_path = CACHE_DIR / f"{case_id}.pt"
+                    if not tensor_path.exists():
+                        tensor_path = CACHE_DIR / f"{case_id}_view0.pt"
+                    rel = f"features/{case_id}.pt"
+                else:
+                    tensor_path = CACHE_DIR / f"{case_id}_view{view_id}.pt"
+                    rel = f"features/{case_id}_view{view_id}.pt"
+                x = torch.load(tensor_path, map_location="cpu", weights_only=False).float().div(255.0)
                 x = ((x - IMAGENET_MEAN) / IMAGENET_STD).to(dev)
                 feat = model(x).flatten(1).cpu().to(torch.float16)
                 feature_shape = list(feat.shape)
-                rel = f"features/{case_id}_view{view_id}.pt"
                 out_path = OUT_DIR / rel
                 torch.save(feat, out_path)
                 checksum_rows.append(
