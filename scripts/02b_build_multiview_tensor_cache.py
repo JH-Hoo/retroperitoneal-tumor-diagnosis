@@ -6,6 +6,7 @@ import math
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
+from statistics import NormalDist
 
 import nibabel as nib
 import numpy as np
@@ -29,6 +30,8 @@ SLICE_MODE = os.environ.get("SLICE_MODE", "uniform")
 BODY_THRESHOLD = float(os.environ.get("BODY_THRESHOLD", "-500"))
 BODY_Z_AREA_FRAC = float(os.environ.get("BODY_Z_AREA_FRAC", "0.01"))
 BODY_Z_MARGIN_FRAC = float(os.environ.get("BODY_Z_MARGIN_FRAC", "0.05"))
+GAUSS_MU = float(os.environ.get("GAUSS_MU", "0.5"))
+GAUSS_SIGMA = float(os.environ.get("GAUSS_SIGMA", "0.22"))
 SEED = int(os.environ.get("SEED", "20260704"))
 DEFAULT_WINDOWS = [
     (-160.0, 240.0),
@@ -73,6 +76,15 @@ def center_fraction_indices(z, frac):
     return np.linspace(start, end, NUM_SLICES).round().astype(int)
 
 
+def gauss_indices(z):
+    dist = NormalDist(mu=GAUSS_MU, sigma=GAUSS_SIGMA)
+    eps = 1.0 / (NUM_SLICES * 4)
+    qs = np.linspace(eps, 1.0 - eps, NUM_SLICES)
+    pos = np.asarray([dist.inv_cdf(float(q)) for q in qs])
+    pos = np.clip(pos, 0.0, 1.0)
+    return np.rint(pos * (z - 1)).astype(int)
+
+
 def body_z_indices(vol):
     z = vol.shape[2]
     body = vol > BODY_THRESHOLD
@@ -94,6 +106,8 @@ def base_indices(vol):
         return center_fraction_indices(vol.shape[2], 0.80)
     if SLICE_MODE == "center60":
         return center_fraction_indices(vol.shape[2], 0.60)
+    if SLICE_MODE == "gauss":
+        return gauss_indices(vol.shape[2])
     if SLICE_MODE == "body_z":
         return body_z_indices(vol)
     raise ValueError(f"unknown SLICE_MODE: {SLICE_MODE}")
@@ -147,6 +161,8 @@ def view_metadata(case_id, raw_img, img, vol, view_id, case_seed):
         "orientation_canonical": "".join(nib.aff2axcodes(img.affine)),
         "selected_slice_indices": ";".join(map(str, idx.tolist())),
         "slice_mode": SLICE_MODE,
+        "gauss_mu": GAUSS_MU if SLICE_MODE == "gauss" else "",
+        "gauss_sigma": GAUSS_SIGMA if SLICE_MODE == "gauss" else "",
         "windows": ";".join(f"{low:.2f},{high:.2f}" for low, high in windows),
         "affine": int(do_affine),
         "noise": int(do_noise),
@@ -263,6 +279,8 @@ def main():
         "tensor_shape": [NUM_SLICES, 3, IMAGE_SIZE, IMAGE_SIZE],
         "tensor_dtype": "uint8",
         "slice_mode": SLICE_MODE,
+        "gauss_mu": GAUSS_MU if SLICE_MODE == "gauss" else None,
+        "gauss_sigma": GAUSS_SIGMA if SLICE_MODE == "gauss" else None,
         "windows": WINDOWS,
         "view0": f"{SLICE_MODE} {NUM_SLICES} slices with fixed windows",
         "augmentation": "z-jitter, window jitter, mild affine, mild Gaussian noise",

@@ -64,6 +64,7 @@ Detailed report:
 reports/binary_benign_malignant_trial_report.md
 reports/multiview_augmentation_trial_20260704.md
 reports/binary_hyperparameter_exploration_20260704.md
+reports/binary_slice_window_sweep_20260705.md
 reports/腹膜后肿瘤CT二分类筛查模型技术报告.md
 reports/腹膜后肿瘤CT二分类筛查模型技术报告.pdf
 ```

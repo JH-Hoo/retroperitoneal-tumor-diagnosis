@@ -3,6 +3,7 @@ import csv
 import hashlib
 import json
 import os
+from statistics import NormalDist
 from pathlib import Path
 
 import numpy as np
@@ -15,6 +16,8 @@ SOURCE_FEATURE_NAME = os.environ.get("SOURCE_FEATURE_NAME", "features_cache_96sl
 FEATURE_NAME = os.environ.get("FEATURE_NAME", "features_cache_96slice_resnet18_subset")
 SUBSET_MODE = os.environ.get("SUBSET_MODE", "uniform")
 NUM_SLICES = int(os.environ.get("NUM_SLICES", "64"))
+GAUSS_MU = float(os.environ.get("GAUSS_MU", "0.5"))
+GAUSS_SIGMA = float(os.environ.get("GAUSS_SIGMA", "0.22"))
 
 SOURCE_DIR = PROJECT_ROOT / "data" / SOURCE_FEATURE_NAME / "features"
 OUT_DIR = PROJECT_ROOT / "data" / FEATURE_NAME
@@ -53,6 +56,13 @@ def indices(n):
         return np.linspace(0, int(round((n - 1) * 0.75)), NUM_SLICES).round().astype(int)
     if SUBSET_MODE == "lower":
         return np.linspace(int(round((n - 1) * 0.25)), n - 1, NUM_SLICES).round().astype(int)
+    if SUBSET_MODE == "gauss":
+        dist = NormalDist(mu=GAUSS_MU, sigma=GAUSS_SIGMA)
+        eps = 1.0 / (NUM_SLICES * 4)
+        qs = np.linspace(eps, 1.0 - eps, NUM_SLICES)
+        pos = np.asarray([dist.inv_cdf(float(q)) for q in qs])
+        pos = np.clip(pos, 0.0, 1.0)
+        return np.rint(pos * (n - 1)).astype(int)
     raise ValueError(f"unknown SUBSET_MODE: {SUBSET_MODE}")
 
 
@@ -88,6 +98,8 @@ def main():
         "source_feature_name": SOURCE_FEATURE_NAME,
         "subset_mode": SUBSET_MODE,
         "num_slices": NUM_SLICES,
+        "gauss_mu": GAUSS_MU if SUBSET_MODE == "gauss" else None,
+        "gauss_sigma": GAUSS_SIGMA if SUBSET_MODE == "gauss" else None,
         "selected_feature_indices": idx_text,
         "feature_shape": [NUM_SLICES, 512],
         "feature_dtype": "float16",
