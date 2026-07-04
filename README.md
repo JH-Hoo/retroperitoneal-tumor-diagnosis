@@ -98,6 +98,9 @@ THRESHOLD_MODE=fixed_05|youden|sens90|sens85
 NUM_VIEWS=1
 TRAIN_VIEW_MODE=random
 TEST_VIEW_MODE=mean
+SCHEDULER=none|cosine
+CLIP_NORM=0 or 5
+SHUFFLE_METADATA=0 or 1
 EPOCHS=80
 BATCH_SIZE=16
 LR=0.001
@@ -125,6 +128,13 @@ Build multiview cache and frozen features:
 ```bash
 CACHE_NAME=cache_96slice_aug5 NUM_VIEWS=5 python scripts/02b_build_multiview_tensor_cache.py
 CACHE_NAME=cache_96slice_aug5 FEATURE_NAME=features_cache_96slice_aug5_resnet18 NUM_VIEWS=5 python scripts/03b_extract_multiview_features.py
+```
+
+Generate error analysis tables and top-slice montages:
+
+```bash
+PRED_CSV=runs/fusion_metadata_image_late_fusion/test_predictions.csv python scripts/07_error_analysis.py
+PRED_CSV=runs/fusion_metadata_image_late_fusion/test_predictions.csv python scripts/08_make_top_slice_montage.py
 ```
 
 ## Repository Structure

@@ -43,6 +43,9 @@ LR = float(os.environ.get("LR", "0.001"))
 WEIGHT_DECAY = float(os.environ.get("WEIGHT_DECAY", "0.0001"))
 DROPOUT = float(os.environ.get("DROPOUT", "0.2"))
 SEED = int(os.environ.get("SEED", "20260704"))
+SCHEDULER = os.environ.get("SCHEDULER", "none")
+CLIP_NORM = float(os.environ.get("CLIP_NORM", "0"))
+SHUFFLE_METADATA = os.environ.get("SHUFFLE_METADATA", "0") == "1"
 
 SAMPLER = os.environ.get("SAMPLER", "natural")
 LOSS = os.environ.get("LOSS", "weighted_ce")
@@ -110,6 +113,11 @@ class BinaryBags(Dataset):
         self.rows = rows
         self.tabular_encoder = tabular_encoder
         self.train = train
+        self.tab_rows = rows
+        if train and SHUFFLE_METADATA:
+            rng = np.random.default_rng(SEED + FOLD)
+            idx = rng.permutation(len(rows))
+            self.tab_rows = [rows[i] for i in idx]
 
     def __len__(self):
         return len(self.rows)
@@ -134,7 +142,7 @@ class BinaryBags(Dataset):
     def __getitem__(self, i):
         row = self.rows[i]
         feat = self.load_feature(row["case_id"])
-        tab = self.tabular_encoder.encode(row)
+        tab = self.tabular_encoder.encode(self.tab_rows[i])
         return (
             feat,
             tab,
@@ -345,6 +353,8 @@ def train_one_epoch(model, loader, optimizer, dev, ce_weight, aux_weight):
         if aux_logits is not None:
             loss = loss + AUX_WEIGHT * aux_ce(aux_logits, y5)
         loss.backward()
+        if CLIP_NORM > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=CLIP_NORM)
         optimizer.step()
         prob = torch.softmax(logits, dim=1)[:, 1]
         losses.append(loss.item())
@@ -525,6 +535,11 @@ def main():
     ce_weight = class_weights(train_rows).to(dev)
     aux_weight = class5_weights(train_rows).to(dev)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
+    scheduler = None
+    if SCHEDULER == "cosine":
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS, eta_min=LR * 0.01)
+    elif SCHEDULER != "none":
+        raise ValueError(f"unknown SCHEDULER: {SCHEDULER}")
     best_score, best_threshold, log_rows = -1e18, 0.5, []
     print(
         f"binary_nonbenign fold={FOLD} train/val/test={len(train_rows)}/{len(val_rows)}/{len(test_rows)} "
@@ -560,6 +575,8 @@ def main():
                 },
                 OUT_DIR / "model_best.pt",
             )
+        if scheduler is not None:
+            scheduler.step()
         print(
             f"epoch {epoch}/{EPOCHS} loss={loss:.4f} train_acc={acc:.3f} "
             f"val_bacc={val_metrics['balanced_accuracy']:.3f} val_sens={val_metrics['sensitivity']:.3f} "
@@ -627,6 +644,9 @@ def main():
                 "lr": LR,
                 "weight_decay": WEIGHT_DECAY,
                 "dropout": DROPOUT,
+                "scheduler": SCHEDULER,
+                "clip_norm": CLIP_NORM,
+                "shuffle_metadata": SHUFFLE_METADATA,
                 "seed": SEED,
                 "class_names": CLASS_NAMES,
             },
