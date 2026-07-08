@@ -113,22 +113,6 @@ Full summary:
 reports/champion_resnet25d_clinical4_minvox5000/summary.json
 ```
 
-Previous direct binary baseline, using `minvox5000`:
-
-| Model | Cases | Accuracy | Balanced Accuracy | Macro F1 | Benign Recall | Risk Recall |
-|---|---:|---:|---:|---:|---:|---:|
-| Champion FLARE23 + 2.5D ResNet | 179 | 0.838 | 0.718 | 0.721 | 0.531 | 0.905 |
-
-Confusion matrix:
-
-![OOF confusion matrix](reports/champion_resnet25d_binary_minvox5000/confusion_matrix.png)
-
-Full summary:
-
-```text
-reports/champion_resnet25d_binary_minvox5000/summary.json
-```
-
 ## Repository Layout
 
 ```text
@@ -137,16 +121,10 @@ scripts/
   prepare_champion_minvox_labels.py
   build_flare23_25d_cache.py
   train_resnet25d_clinical4_cv.py
-  train_resnet25d_binary_cv.py
   run_champion_resnet25d_clinical4_remote.sh
 
 external/flare23_champion/
   README.md
-
-reports/champion_resnet25d_binary_minvox5000/
-  summary.json
-  oof_predictions.csv
-  confusion_matrix.png
 
 reports/champion_resnet25d_clinical4_minvox5000/
   summary.json
