@@ -21,11 +21,12 @@ from torchvision.models import ResNet18_Weights, resnet18
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CACHE_ROOT = PROJECT_ROOT / "data" / "champion_flare23_25d_cache_15x224_minvox5000"
-DEFAULT_OUT_DIR = PROJECT_ROOT / "models" / "champion_resnet25d_clinical4_minvox5000_cv5"
+DEFAULT_OUT_DIR = PROJECT_ROOT / "models" / "champion_resnet25d_clinical4_multitask_minvox5000_cv5"
 
 CLINICAL4_CLASS_NAMES = ["sarcoma/GIST-like", "lymphoma", "PPGL", "benign neurogenic"]
 CLINICAL4_PROB_COLUMNS = ["prob_sarcoma_gist_like", "prob_lymphoma", "prob_ppgl", "prob_benign_neurogenic"]
 DERIVED_BINARY_CLASS_NAMES = ["risk/workup", "benign-like"]
+BINARY_HEAD_PROB_COLUMNS = ["prob_binary_head_risk_workup", "prob_binary_head_benign_like"]
 LABEL_5_TO_CLINICAL4 = {
     "肉瘤类": 0,
     "胃肠道间质瘤": 0,
@@ -129,6 +130,14 @@ def clinical4_id(row):
 
 def clinical4_name(row):
     return CLINICAL4_CLASS_NAMES[clinical4_id(row)]
+
+
+def binary_id_from_clinical4(cls):
+    return 1 if int(cls) == BENIGN_CLINICAL4_ID else 0
+
+
+def binary_id(row):
+    return binary_id_from_clinical4(clinical4_id(row))
 
 
 def parse_float(value, default=0.0):
@@ -309,8 +318,10 @@ class ResNet25DMIL(nn.Module):
         aux_dim=0,
         dropout=0.35,
         attn_dim=128,
+        attention_heads=4,
         pos_dim=16,
         hidden_dim=256,
+        logsumexp_temp=1.0,
         mask_channel_init="zero",
         freeze_backbone=False,
     ):
@@ -321,30 +332,47 @@ class ResNet25DMIL(nn.Module):
                 p.requires_grad = False
         self.pos_mlp = nn.Sequential(nn.Linear(1, pos_dim), nn.ReLU(inplace=True))
         bag_dim = feature_dim + pos_dim
-        self.attn = nn.Sequential(nn.Linear(bag_dim, attn_dim), nn.Tanh(), nn.Linear(attn_dim, 1))
-        self.classifier = nn.Sequential(
-            nn.Linear(bag_dim + aux_dim, hidden_dim),
+        self.attention_heads = int(attention_heads)
+        self.logsumexp_temp = float(logsumexp_temp)
+        self.attn = nn.Sequential(nn.Linear(bag_dim, attn_dim), nn.Tanh(), nn.Linear(attn_dim, self.attention_heads))
+        pooled_dim = bag_dim * (self.attention_heads + 3) + aux_dim
+        self.shared_head = nn.Sequential(
+            nn.Linear(pooled_dim, hidden_dim),
             nn.ReLU(inplace=True),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, len(CLASS_IDS)),
         )
+        self.clinical4_head = nn.Linear(hidden_dim, len(CLASS_IDS))
+        self.binary_head = nn.Linear(hidden_dim, len(DERIVED_BINARY_CLASS_NAMES))
 
     def forward(self, x, z, aux=None):
         b, n, c, h, w = x.shape
         feat = self.backbone(x.view(b * n, c, h, w)).view(b, n, -1)
         pos = self.pos_mlp(z)
         feat = torch.cat([feat, pos], dim=-1)
-        attn = torch.softmax(self.attn(feat).squeeze(-1), dim=1)
-        pooled = (feat * attn.unsqueeze(-1)).sum(dim=1)
+        attn = torch.softmax(self.attn(feat), dim=1)
+        attn_pool = torch.einsum("bnh,bnd->bhd", attn, feat).reshape(b, -1)
+        mean_pool = feat.mean(dim=1)
+        max_pool = feat.max(dim=1).values
+        temp = max(self.logsumexp_temp, 1e-6)
+        lse_pool = temp * torch.logsumexp(feat / temp, dim=1)
+        pooled = torch.cat([attn_pool, mean_pool, max_pool, lse_pool], dim=1)
         if aux is not None and aux.numel():
             pooled = torch.cat([pooled, aux], dim=1)
-        return self.classifier(pooled), attn
+        shared = self.shared_head(pooled)
+        attn_report = attn.max(dim=2).values
+        return self.clinical4_head(shared), self.binary_head(shared), attn_report
 
 
 def class_weights(rows):
     counts = np.bincount([clinical4_id(r) for r in rows], minlength=len(CLASS_IDS))
     safe = np.maximum(counts, 1)
     return torch.tensor(safe.sum() / (len(CLASS_IDS) * safe), dtype=torch.float32)
+
+
+def binary_class_weights(rows):
+    counts = np.bincount([binary_id(r) for r in rows], minlength=len(DERIVED_BINARY_CLASS_NAMES))
+    safe = np.maximum(counts, 1)
+    return torch.tensor(safe.sum() / (len(DERIVED_BINARY_CLASS_NAMES) * safe), dtype=torch.float32)
 
 
 def metrics_dict(ys, probs):
@@ -364,6 +392,21 @@ def metrics_dict(ys, probs):
     }
 
 
+def binary_metrics_dict(ys, probs):
+    pred = np.asarray(probs).argmax(axis=1)
+    cm = confusion_matrix(ys, pred, labels=[0, 1])
+    recall = recall_score(ys, pred, labels=[0, 1], average=None, zero_division=0)
+    return {
+        "accuracy": accuracy_score(ys, pred),
+        "balanced_accuracy": balanced_accuracy_score(ys, pred),
+        "macro_f1": f1_score(ys, pred, average="macro", zero_division=0),
+        "weighted_f1": f1_score(ys, pred, average="weighted", zero_division=0),
+        "risk_workup_recall": float(recall[0]),
+        "benign_like_recall": float(recall[1]),
+        "confusion_matrix": cm.tolist(),
+    }
+
+
 def derived_binary_arrays(ys, probs):
     probs = np.asarray(probs, dtype=np.float32)
     y_bin = [1 if int(y) == BENIGN_CLINICAL4_ID else 0 for y in ys]
@@ -374,18 +417,7 @@ def derived_binary_arrays(ys, probs):
 
 def derived_binary_metrics(ys, probs):
     y_bin, p_bin = derived_binary_arrays(ys, probs)
-    pred = np.asarray(p_bin).argmax(axis=1)
-    cm = confusion_matrix(y_bin, pred, labels=[0, 1])
-    recall = recall_score(y_bin, pred, labels=[0, 1], average=None, zero_division=0)
-    return {
-        "accuracy": accuracy_score(y_bin, pred),
-        "balanced_accuracy": balanced_accuracy_score(y_bin, pred),
-        "macro_f1": f1_score(y_bin, pred, average="macro", zero_division=0),
-        "weighted_f1": f1_score(y_bin, pred, average="weighted", zero_division=0),
-        "risk_workup_recall": float(recall[0]),
-        "benign_like_recall": float(recall[1]),
-        "confusion_matrix": cm.tolist(),
-    }
+    return binary_metrics_dict(y_bin, p_bin)
 
 
 def stratified_val_split(rows, val_fraction, seed):
@@ -404,35 +436,46 @@ def stratified_val_split(rows, val_fraction, seed):
     return train_rows, val_rows
 
 
-def train_one_epoch(model, loader, criterion, optimizer, scaler, dev, use_amp):
+def train_one_epoch(model, loader, criterion4, criterion2, binary_loss_weight, optimizer, scaler, dev, use_amp):
     model.train()
-    losses, ys, probs = [], [], []
+    losses, ys4, probs4, ys2, probs2 = [], [], [], [], []
     for x, z, aux, y, _, _ in loader:
         x, z, aux, y = x.to(dev), z.to(dev), aux.to(dev), y.to(dev)
+        y_binary = (y == BENIGN_CLINICAL4_ID).long()
         optimizer.zero_grad(set_to_none=True)
         with autocast_context(dev, use_amp):
-            logits, _ = model(x, z, aux)
-            loss = criterion(logits, y)
+            logits4, logits2, _ = model(x, z, aux)
+            loss4 = criterion4(logits4, y)
+            loss2 = criterion2(logits2, y_binary)
+            loss = loss4 + float(binary_loss_weight) * loss2
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
         losses.append(float(loss.detach().cpu().item()))
-        ys.extend(y.detach().cpu().tolist())
-        probs.extend(torch.softmax(logits.detach(), dim=1).cpu().numpy().tolist())
-    out = metrics_dict(ys, probs)
-    out["loss"] = float(np.mean(losses)) if losses else 0.0
+        ys4.extend(y.detach().cpu().tolist())
+        ys2.extend(y_binary.detach().cpu().tolist())
+        probs4.extend(torch.softmax(logits4.detach(), dim=1).cpu().numpy().tolist())
+        probs2.extend(torch.softmax(logits2.detach(), dim=1).cpu().numpy().tolist())
+    clinical4 = metrics_dict(ys4, probs4)
+    binary_head = binary_metrics_dict(ys2, probs2)
+    out = {
+        "loss": float(np.mean(losses)) if losses else 0.0,
+        **{f"clinical4_{k}": v for k, v in clinical4.items()},
+        **{f"binary_head_{k}": v for k, v in binary_head.items()},
+    }
     return out
 
 
 @torch.no_grad()
 def evaluate(model, loader, dev, use_amp):
     model.eval()
-    rows, ys, probs_all = [], [], []
+    rows, ys, probs_all, ys_binary, probs_binary_all = [], [], [], [], []
     for x, z, aux, y, groups, labels in loader:
         x, z, aux = x.to(dev), z.to(dev), aux.to(dev)
         with autocast_context(dev, use_amp):
-            logits, attn = model(x, z, aux)
-        prob = torch.softmax(logits, dim=1).cpu().numpy()
+            logits4, logits2, attn = model(x, z, aux)
+        prob = torch.softmax(logits4, dim=1).cpu().numpy()
+        prob_binary = torch.softmax(logits2, dim=1).cpu().numpy()
         attn_np = attn.cpu().numpy()
         for i, group in enumerate(groups):
             true = int(y[i].item())
@@ -441,6 +484,8 @@ def evaluate(model, loader, dev, use_amp):
             p_benign = float(prob[i, BENIGN_CLINICAL4_ID])
             p_risk = float(1.0 - p_benign)
             binary_pred = int(p_benign >= p_risk)
+            true_binary = binary_id_from_clinical4(true)
+            binary_head_pred = int(prob_binary[i].argmax())
             row = {
                 "group": group,
                 "label_5": labels[i],
@@ -453,20 +498,32 @@ def evaluate(model, loader, dev, use_amp):
                 "top2_clinical4_label": CLINICAL4_CLASS_NAMES[int(order[1])],
                 "top2_clinical4_prob": float(prob[i, order[1]]),
                 "derived_true_binary_label": DERIVED_BINARY_CLASS_NAMES[1 if true == BENIGN_CLINICAL4_ID else 0],
-                "derived_true_binary_id": 1 if true == BENIGN_CLINICAL4_ID else 0,
+                "derived_true_binary_id": true_binary,
                 "derived_pred_binary_label": DERIVED_BINARY_CLASS_NAMES[binary_pred],
                 "derived_pred_binary_id": binary_pred,
                 "prob_risk_workup": p_risk,
                 "prob_benign_like": p_benign,
+                "binary_head_true_binary_label": DERIVED_BINARY_CLASS_NAMES[true_binary],
+                "binary_head_true_binary_id": true_binary,
+                "binary_head_pred_binary_label": DERIVED_BINARY_CLASS_NAMES[binary_head_pred],
+                "binary_head_pred_binary_id": binary_head_pred,
                 "top_slice_index_in_bag": int(attn_np[i].argmax()),
                 "top_slice_attention": float(attn_np[i].max()),
             }
             for cls_idx, col in enumerate(CLINICAL4_PROB_COLUMNS):
                 row[col] = float(prob[i, cls_idx])
+            for cls_idx, col in enumerate(BINARY_HEAD_PROB_COLUMNS):
+                row[col] = float(prob_binary[i, cls_idx])
             rows.append(row)
             ys.append(true)
             probs_all.append(prob[i].tolist())
-    return {"clinical4": metrics_dict(ys, probs_all), "derived_binary": derived_binary_metrics(ys, probs_all)}, rows
+            ys_binary.append(true_binary)
+            probs_binary_all.append(prob_binary[i].tolist())
+    return {
+        "clinical4": metrics_dict(ys, probs_all),
+        "derived_binary": derived_binary_metrics(ys, probs_all),
+        "binary_head": binary_metrics_dict(ys_binary, probs_binary_all),
+    }, rows
 
 
 def add_fold(rows, fold):
@@ -483,6 +540,14 @@ def probs_from_prediction_rows(rows):
     for row in rows:
         y.append(int(row["true_clinical4_id"]))
         probs.append([float(row[col]) for col in CLINICAL4_PROB_COLUMNS])
+    return y, probs
+
+
+def binary_head_probs_from_prediction_rows(rows):
+    y, probs = [], []
+    for row in rows:
+        y.append(int(row["binary_head_true_binary_id"]))
+        probs.append([float(row[col]) for col in BINARY_HEAD_PROB_COLUMNS])
     return y, probs
 
 
@@ -518,6 +583,10 @@ def main():
     parser.add_argument("--lr", type=float, default=5e-5)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--dropout", type=float, default=0.35)
+    parser.add_argument("--binary-loss-weight", type=float, default=0.5)
+    parser.add_argument("--attention-heads", type=int, default=4)
+    parser.add_argument("--logsumexp-temp", type=float, default=1.0)
+    parser.add_argument("--selection-metric", choices=["clinical4_macro_f1", "binary_head_macro_f1", "combined"], default="combined")
     parser.add_argument("--val-fraction", type=float, default=0.15)
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--seed", type=int, default=20260708)
@@ -568,10 +637,13 @@ def main():
             in_channels=5,
             aux_dim=aux_dim,
             dropout=args.dropout,
+            attention_heads=args.attention_heads,
+            logsumexp_temp=args.logsumexp_temp,
             mask_channel_init=args.mask_channel_init,
             freeze_backbone=args.freeze_backbone,
         ).to(dev)
-        criterion = nn.CrossEntropyLoss(weight=class_weights(train_rows).to(dev))
+        criterion4 = nn.CrossEntropyLoss(weight=class_weights(train_rows).to(dev))
+        criterion2 = nn.CrossEntropyLoss(weight=binary_class_weights(train_rows).to(dev))
         optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.lr, weight_decay=args.weight_decay)
         scaler = make_grad_scaler(dev, use_amp)
         best_score, log_rows = -1.0, []
@@ -581,9 +653,24 @@ def main():
             flush=True,
         )
         for epoch in range(1, args.epochs + 1):
-            train_metrics = train_one_epoch(model, train_loader, criterion, optimizer, scaler, dev, use_amp)
+            train_metrics = train_one_epoch(
+                model,
+                train_loader,
+                criterion4,
+                criterion2,
+                args.binary_loss_weight,
+                optimizer,
+                scaler,
+                dev,
+                use_amp,
+            )
             val_metrics, _ = evaluate(model, val_loader, dev, use_amp)
-            score = val_metrics["clinical4"].get("macro_f1", 0.0)
+            if args.selection_metric == "clinical4_macro_f1":
+                score = val_metrics["clinical4"].get("macro_f1", 0.0)
+            elif args.selection_metric == "binary_head_macro_f1":
+                score = val_metrics["binary_head"].get("macro_f1", 0.0)
+            else:
+                score = val_metrics["clinical4"].get("macro_f1", 0.0) + 0.5 * val_metrics["binary_head"].get("macro_f1", 0.0)
             row = {
                 "fold": fold,
                 "epoch": epoch,
@@ -594,8 +681,10 @@ def main():
             print(
                 f"fold {fold}/{args.folds} epoch {epoch}/{args.epochs} "
                 f"loss={train_metrics.get('loss', 0):.4f} "
-                f"train_macro_f1={train_metrics.get('macro_f1', 0):.3f} "
-                f"val_macro_f1={val_metrics['clinical4'].get('macro_f1', 0):.3f}",
+                f"train_clinical4_macro_f1={train_metrics.get('clinical4_macro_f1', 0):.3f} "
+                f"train_binary_macro_f1={train_metrics.get('binary_head_macro_f1', 0):.3f} "
+                f"val_clinical4_macro_f1={val_metrics['clinical4'].get('macro_f1', 0):.3f} "
+                f"val_binary_macro_f1={val_metrics['binary_head'].get('macro_f1', 0):.3f}",
                 flush=True,
             )
             if score > best_score:
@@ -624,8 +713,10 @@ def main():
         print(f"fold {fold} test {json.dumps(test_metrics, ensure_ascii=False)}", flush=True)
 
     y_oof, prob_oof = probs_from_prediction_rows(all_test_predictions)
+    y_binary_oof, prob_binary_oof = binary_head_probs_from_prediction_rows(all_test_predictions)
     oof_metrics = metrics_dict(y_oof, prob_oof)
     oof_derived_metrics = derived_binary_metrics(y_oof, prob_oof)
+    oof_binary_head_metrics = binary_metrics_dict(y_binary_oof, prob_binary_oof)
     write_rows(args.out_dir / "oof_predictions.csv", all_test_predictions)
     write_rows(
         args.out_dir / "oof_predictions_derived_binary.csv",
@@ -644,8 +735,26 @@ def main():
             for row in all_test_predictions
         ],
     )
+    write_rows(
+        args.out_dir / "oof_predictions_binary_head.csv",
+        [
+            {
+                "group": row["group"],
+                "label_5": row["label_5"],
+                "true_binary_label": row["binary_head_true_binary_label"],
+                "true_binary_id": row["binary_head_true_binary_id"],
+                "pred_binary_label": row["binary_head_pred_binary_label"],
+                "pred_binary_id": row["binary_head_pred_binary_id"],
+                "prob_binary_head_risk_workup": row["prob_binary_head_risk_workup"],
+                "prob_binary_head_benign_like": row["prob_binary_head_benign_like"],
+                "fold": row["fold"],
+            }
+            for row in all_test_predictions
+        ],
+    )
     summary = {
-        "task": "clinical4_primary_with_derived_binary_25d",
+        "task": "clinical4_multitask_binary_head_25d",
+        "architecture": "ResNet18 + z-position embedding + gated multi-head attention + mean/max/logsumexp pooling + clinical4 and binary heads",
         "clinical4_classes": {
             "0": "sarcoma/GIST-like = 肉瘤类 + 胃肠道间质瘤",
             "1": "lymphoma = 淋巴瘤",
@@ -663,10 +772,14 @@ def main():
         "batch_size": args.batch_size,
         "weights": args.weights,
         "mask_channel_init": args.mask_channel_init,
+        "binary_loss_weight": args.binary_loss_weight,
+        "attention_heads": args.attention_heads,
+        "logsumexp_temp": args.logsumexp_temp,
+        "selection_metric": args.selection_metric,
         "freeze_backbone": args.freeze_backbone,
         "use_aux": not args.no_aux,
         "class_counts": dict(class_counts),
-        "oof_metrics": {"clinical4": oof_metrics, "derived_binary": oof_derived_metrics},
+        "oof_metrics": {"clinical4": oof_metrics, "derived_binary": oof_derived_metrics, "binary_head": oof_binary_head_metrics},
         "folds_detail": fold_summaries,
     }
     (args.out_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -682,7 +795,20 @@ def main():
         f"Derived binary OOF confusion matrix (acc={oof_derived_metrics['accuracy']:.3f})",
         DERIVED_BINARY_CLASS_NAMES,
     )
-    print(json.dumps({"oof": {"clinical4": oof_metrics, "derived_binary": oof_derived_metrics}}, ensure_ascii=False, indent=2), flush=True)
+    plot_confusion_matrix(
+        oof_binary_head_metrics["confusion_matrix"],
+        args.out_dir / "resnet25d_binary_head_oof_confusion_matrix.png",
+        f"Binary head OOF confusion matrix (acc={oof_binary_head_metrics['accuracy']:.3f})",
+        DERIVED_BINARY_CLASS_NAMES,
+    )
+    print(
+        json.dumps(
+            {"oof": {"clinical4": oof_metrics, "derived_binary": oof_derived_metrics, "binary_head": oof_binary_head_metrics}},
+            ensure_ascii=False,
+            indent=2,
+        ),
+        flush=True,
+    )
     print(f"outputs: {args.out_dir}", flush=True)
 
 

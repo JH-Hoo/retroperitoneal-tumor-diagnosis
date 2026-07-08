@@ -4,7 +4,7 @@ This repository is intentionally narrowed to the current working pipeline:
 
 1. Generate organ and tumor-candidate masks with the Shenzhen-Yorktal FLARE23 champion project.
 2. Use FLARE label `14` to sample lesion-guided 2.5D CT slices.
-3. Train an ImageNet-pretrained ResNet18 attention-MIL model on 4 clinical-imaging groups.
+3. Train an ImageNet-pretrained ResNet18 multi-task gated-MIL model on 4 clinical-imaging groups.
 
 The primary training task is:
 
@@ -22,6 +22,7 @@ risk/workup = P(sarcoma/GIST-like) + P(lymphoma) + P(PPGL)
 benign-like = P(benign neurogenic)
 ```
 
+The model also trains an explicit binary head for `risk/workup` vs `benign-like`.
 This branch contains the champion-mask 2.5D ResNet pipeline, with 4-class training as the main task.
 
 ## External Segmentation
@@ -82,22 +83,23 @@ Current champion-mask 4-class 5-fold OOF result, using `minvox5000`:
 
 | Model | Cases | Accuracy | Balanced Accuracy | Macro F1 | Top-2 Accuracy |
 |---|---:|---:|---:|---:|---:|
-| Champion FLARE23 + 2.5D ResNet clinical4 | 179 | 0.542 | 0.488 | 0.484 | 0.810 |
+| Champion FLARE23 + 2.5D ResNet clinical4 multitask | 179 | 0.592 | 0.532 | 0.529 | 0.816 |
 
 Per-class recall:
 
 | Class | Recall |
 |---|---:|
-| sarcoma/GIST-like | 0.644 |
-| lymphoma | 0.438 |
-| PPGL | 0.400 |
-| benign neurogenic | 0.469 |
+| sarcoma/GIST-like | 0.711 |
+| lymphoma | 0.312 |
+| PPGL | 0.480 |
+| benign neurogenic | 0.625 |
 
 Derived binary result from the same 4-class probabilities:
 
 | Output | Accuracy | Balanced Accuracy | Macro F1 | Risk/Workup Recall | Benign-Like Recall |
 |---|---:|---:|---:|---:|---:|
-| `risk/workup` vs `benign-like` | 0.810 | 0.628 | 0.640 | 0.912 | 0.344 |
+| derived from clinical4 probabilities | 0.866 | 0.711 | 0.738 | 0.952 | 0.469 |
+| explicit binary head | 0.849 | 0.725 | 0.733 | 0.918 | 0.531 |
 
 Clinical4 confusion matrix:
 
@@ -106,6 +108,10 @@ Clinical4 confusion matrix:
 Derived binary confusion matrix:
 
 ![Derived binary OOF confusion matrix](reports/champion_resnet25d_clinical4_minvox5000/resnet25d_derived_binary_oof_confusion_matrix.png)
+
+Binary head confusion matrix:
+
+![Binary head OOF confusion matrix](reports/champion_resnet25d_clinical4_minvox5000/resnet25d_binary_head_oof_confusion_matrix.png)
 
 Full summary:
 
@@ -130,8 +136,10 @@ reports/champion_resnet25d_clinical4_minvox5000/
   summary.json
   oof_predictions.csv
   oof_predictions_derived_binary.csv
+  oof_predictions_binary_head.csv
   resnet25d_clinical4_oof_confusion_matrix.png
   resnet25d_derived_binary_oof_confusion_matrix.png
+  resnet25d_binary_head_oof_confusion_matrix.png
 
 data/champion_flare23_25d_cache_15x224_minvox5000/
   dataset_summary.json
