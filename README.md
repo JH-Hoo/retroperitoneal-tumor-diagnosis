@@ -215,6 +215,7 @@ scripts/
   train_pseudo_seg25d_clinical4_cv.py
   evaluate_oof_clinical4.py
   summarize_repeated_cv.py
+  write_public_manifest.py
   run_p0_ablations_remote.sh
   run_pseudo_seg25d_remote.sh
   run_repeated_cv_remote.sh
@@ -259,5 +260,6 @@ reports/repeated_cv/champion_resnet25d_clinical4_minvox5000/
 
 data/champion_flare23_25d_cache_15x224_minvox5000/
   dataset_summary.json
+  manifest_public.csv
   tensors_sha256.csv
 ```

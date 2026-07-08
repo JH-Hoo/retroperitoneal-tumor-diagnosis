@@ -284,6 +284,98 @@ def write_error_review(path, rows, cache_meta):
     write_rows(path, out)
 
 
+def quantile_bin(value, cuts):
+    if value is None or value == "":
+        return "missing"
+    try:
+        x = float(value)
+    except (TypeError, ValueError):
+        return "missing"
+    if not cuts:
+        return "all"
+    if x <= cuts[0]:
+        return f"<=q1({cuts[0]:.3g})"
+    if len(cuts) > 1 and x <= cuts[1]:
+        return f"q1-q2({cuts[0]:.3g}-{cuts[1]:.3g})"
+    if len(cuts) > 2 and x <= cuts[2]:
+        return f"q2-q3({cuts[1]:.3g}-{cuts[2]:.3g})"
+    return f">q3({cuts[-1]:.3g})"
+
+
+def summarize_groups(rows, key_fn, dimension, cache_meta):
+    groups = {}
+    for row in rows:
+        key = key_fn(row)
+        groups.setdefault(key, []).append(row)
+    out = []
+    for key, vals in sorted(groups.items(), key=lambda x: str(x[0])):
+        n = len(vals)
+        clinical4_errors = sum(int(v["true_clinical4_id"] != v["pred_clinical4_id"]) for v in vals)
+        binary_errors = sum(int(v["binary_head_true_binary_id"] != v["binary_head_pred_binary_id"]) for v in vals)
+        tumor_vals = []
+        attn_vals = []
+        for v in vals:
+            meta = cache_meta.get(v["group"], {})
+            try:
+                tumor_vals.append(float(meta.get("tumor_voxels", "")))
+            except (TypeError, ValueError):
+                pass
+            try:
+                attn_vals.append(float(v.get("top_slice_attention", "")))
+            except (TypeError, ValueError):
+                pass
+        out.append(
+            {
+                "dimension": dimension,
+                "group": key,
+                "n": n,
+                "clinical4_errors": clinical4_errors,
+                "clinical4_error_rate": clinical4_errors / max(n, 1),
+                "binary_head_errors": binary_errors,
+                "binary_head_error_rate": binary_errors / max(n, 1),
+                "mean_tumor_voxels": float(np.mean(tumor_vals)) if tumor_vals else "",
+                "mean_top_slice_attention": float(np.mean(attn_vals)) if attn_vals else "",
+            }
+        )
+    return out
+
+
+def write_error_strata_summary(path, rows, cache_meta):
+    tumor_values, attn_values = [], []
+    for row in rows:
+        meta = cache_meta.get(row["group"], {})
+        try:
+            tumor_values.append(float(meta.get("tumor_voxels", "")))
+        except (TypeError, ValueError):
+            pass
+        try:
+            attn_values.append(float(row.get("top_slice_attention", "")))
+        except (TypeError, ValueError):
+            pass
+    tumor_cuts = np.percentile(tumor_values, [25, 50, 75]).tolist() if tumor_values else []
+    attn_cuts = np.percentile(attn_values, [25, 50, 75]).tolist() if attn_values else []
+    out = []
+    out.extend(summarize_groups(rows, lambda r: r.get("label_5", ""), "label_5", cache_meta))
+    out.extend(summarize_groups(rows, lambda r: cache_meta.get(r["group"], {}).get("sample_status", ""), "sample_status", cache_meta))
+    out.extend(
+        summarize_groups(
+            rows,
+            lambda r: quantile_bin(cache_meta.get(r["group"], {}).get("tumor_voxels", ""), tumor_cuts),
+            "tumor_voxels_quantile",
+            cache_meta,
+        )
+    )
+    out.extend(
+        summarize_groups(
+            rows,
+            lambda r: quantile_bin(r.get("top_slice_attention", ""), attn_cuts),
+            "top_slice_attention_quantile",
+            cache_meta,
+        )
+    )
+    write_rows(path, out)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Extended evaluation for clinical4 OOF predictions.")
     parser.add_argument("--predictions", type=Path, required=True)
@@ -322,7 +414,9 @@ def main():
 
     plot_calibration(args.out_dir / "calibration_derived_binary.png", y_derived, p_derived[:, 1], "Derived binary calibration")
     plot_calibration(args.out_dir / "calibration_binary_head.png", y_bin, p_bin[:, 1], "Binary-head calibration")
-    write_error_review(args.out_dir / "error_review.csv", rows, load_cache_meta(args.cache_all_csv))
+    cache_meta = load_cache_meta(args.cache_all_csv)
+    write_error_review(args.out_dir / "error_review.csv", rows, cache_meta)
+    write_error_strata_summary(args.out_dir / "error_strata_summary.csv", rows, cache_meta)
     print(json.dumps(metrics, ensure_ascii=False, indent=2))
 
 

@@ -1,0 +1,180 @@
+﻿case_id_hash,clinical4_label,label_5,fold,champion_tumor_voxels,cache_status,sample_status,crop_status,source_z,spacing_x_mm,spacing_y_mm,spacing_z_mm
+6fd7b830d28cc768,sarcoma/GIST-like,肉瘤类,3,343321,ok,tumor_z_distribution,tumor_xy_bbox,260,0.78125,0.78125,1.0
+f69fa13f5f32f446,sarcoma/GIST-like,肉瘤类,3,268412,ok,tumor_z_distribution,tumor_xy_bbox,405,0.703125,0.703125,1.25
+38020cb66d358eac,sarcoma/GIST-like,肉瘤类,1,201847,ok,tumor_z_distribution,tumor_xy_bbox,724,0.865234375,0.865234375,0.699999988079071
+87554ab0fa4ec8cd,PPGL,PPGL,5,215735,ok,tumor_z_distribution,tumor_xy_bbox,426,0.6919999718666077,0.6919999718666077,1.0
+68d8d04124d28722,sarcoma/GIST-like,胃肠道间质瘤,1,2591728,ok,tumor_z_distribution,tumor_xy_bbox,357,0.8300780057907104,0.8300780057907104,1.25
+4ed120f8bd613fbf,sarcoma/GIST-like,肉瘤类,2,931519,ok,tumor_z_distribution,tumor_xy_bbox,436,0.7049999833106995,0.7049999833106995,1.0
+74cde8effc4ec9e2,PPGL,PPGL,4,14102,ok,tumor_z_distribution,tumor_xy_bbox,352,0.77734375,0.77734375,1.25
+9c8d8c99f76b1198,lymphoma,淋巴瘤,1,7306,ok,tumor_z_distribution,tumor_xy_bbox,501,0.7020000219345093,0.7020000219345093,1.0
+85c7df915d66c096,benign neurogenic,良性神经源性肿瘤,4,14689,ok,tumor_z_distribution,tumor_xy_bbox,738,0.734375,0.734375,0.16621437668800354
+6d9e75e64be0f5d5,sarcoma/GIST-like,肉瘤类,4,884018,ok,tumor_z_distribution,tumor_xy_bbox,546,0.7319999933242798,0.7319999933242798,1.0
+d6bc5fcbf99b9247,sarcoma/GIST-like,肉瘤类,5,485925,ok,tumor_z_distribution,tumor_xy_bbox,540,0.9765625,0.9765625,1.0
+e7befd355e1a7e97,sarcoma/GIST-like,肉瘤类,1,2306668,ok,tumor_z_distribution,tumor_xy_bbox,423,0.76171875,0.76171875,1.0
+9c1e25654376d3ac,sarcoma/GIST-like,肉瘤类,3,77176,ok,tumor_z_distribution,tumor_xy_bbox,153,0.78125,0.78125,1.25
+90f7ed2c1d09031d,PPGL,PPGL,2,39426,ok,tumor_z_distribution,tumor_xy_bbox,485,0.853515625,0.853515625,1.0
+1db7f4cc2bb36362,sarcoma/GIST-like,肉瘤类,5,106723,ok,tumor_z_distribution,tumor_xy_bbox,496,0.84375,0.84375,1.0
+fb0e0b93a2074fe5,PPGL,PPGL,4,23027,ok,tumor_z_distribution,tumor_xy_bbox,365,0.7773439884185791,0.7773439884185791,1.25
+dc49e1e301d2c74e,sarcoma/GIST-like,肉瘤类,2,181528,ok,tumor_z_distribution,tumor_xy_bbox,401,0.703125,0.703125,1.25
+354a99c4d20f6d7a,lymphoma,淋巴瘤,1,261217,ok,tumor_z_distribution,tumor_xy_bbox,389,0.7675780057907104,0.7675780057907104,1.25
+a445aa23c209549b,PPGL,PPGL,1,152180,ok,tumor_z_distribution,tumor_xy_bbox,433,0.8183590173721313,0.8183590173721313,1.25
+fe508e21efaa604a,sarcoma/GIST-like,肉瘤类,5,897486,ok,tumor_z_distribution,tumor_xy_bbox,497,0.669921875,0.669921875,1.0
+9b2e3e4cb1e41e8b,sarcoma/GIST-like,肉瘤类,5,1970727,ok,tumor_z_distribution,tumor_xy_bbox,515,0.78515625,0.78515625,1.0
+3761912d555bf48d,sarcoma/GIST-like,肉瘤类,5,7633,ok,tumor_z_distribution,tumor_xy_bbox,369,0.8984379768371582,0.8984379768371582,1.25
+9adfeaa21d162b0f,sarcoma/GIST-like,胃肠道间质瘤,1,763476,ok,tumor_z_distribution,tumor_xy_bbox,613,0.7699999809265137,0.7699999809265137,0.800000011920929
+bdc66a4653c9a972,lymphoma,淋巴瘤,3,1075470,ok,tumor_z_distribution,tumor_xy_bbox,461,0.656000018119812,0.656000018119812,1.0
+9936550953b8529e,benign neurogenic,良性神经源性肿瘤,4,33155,ok,tumor_z_distribution,tumor_xy_bbox,361,0.703125,0.703125,1.25
+ac9c4a21b145a005,PPGL,PPGL,5,11789,ok,tumor_z_distribution,tumor_xy_bbox,365,0.8085939884185791,0.8085939884185791,1.25
+4516f7a7702ce85f,sarcoma/GIST-like,肉瘤类,3,83030,ok,tumor_z_distribution,tumor_xy_bbox,322,0.67578125,0.67578125,1.0
+06b34d58ef16b098,sarcoma/GIST-like,肉瘤类,4,116211,ok,tumor_z_distribution,tumor_xy_bbox,303,0.646484375,0.646484375,1.0
+40dfdff76ff3df04,PPGL,PPGL,3,831803,ok,tumor_z_distribution,tumor_xy_bbox,671,0.777999997138977,0.777999997138977,1.0
+39b246f4ece1bb24,PPGL,PPGL,2,33544,ok,tumor_z_distribution,tumor_xy_bbox,397,0.8007810115814209,0.8007810115814209,1.25
+1da1bb0df0407dcc,sarcoma/GIST-like,肉瘤类,3,352203,ok,tumor_z_distribution,tumor_xy_bbox,389,0.875,0.875,1.25
+ca3157df91116407,sarcoma/GIST-like,肉瘤类,3,513205,ok,tumor_z_distribution,tumor_xy_bbox,397,0.7089840173721313,0.7089840173721313,1.25
+381814bb3623801e,sarcoma/GIST-like,肉瘤类,2,1277148,ok,tumor_z_distribution,tumor_xy_bbox,345,0.82421875,0.82421875,1.0
+51d6cf4dfd3133d1,lymphoma,淋巴瘤,5,30256,ok,tumor_z_distribution,tumor_xy_bbox,470,0.66796875,0.66796875,1.0
+34ad612653bd847a,lymphoma,淋巴瘤,5,713754,ok,tumor_z_distribution,tumor_xy_bbox,257,0.8398439884185791,0.8398439884185791,1.25
+9b5ced3325c30b62,sarcoma/GIST-like,肉瘤类,2,3203589,ok,tumor_z_distribution,tumor_xy_bbox,726,0.7699999809265137,0.7699999809265137,0.800000011920929
+12884366cfacbd12,sarcoma/GIST-like,肉瘤类,1,2092690,ok,tumor_z_distribution,tumor_xy_bbox,520,0.798828125,0.798828125,1.25
+f938bb7332d3b160,sarcoma/GIST-like,肉瘤类,2,3352477,ok,tumor_z_distribution,tumor_xy_bbox,433,0.7636719942092896,0.7636719942092896,1.25
+ee735225bb3a8b13,PPGL,PPGL,1,664618,ok,tumor_z_distribution,tumor_xy_bbox,251,0.625,0.625,1.0
+ad933cf588c01d40,lymphoma,淋巴瘤,1,67213,ok,tumor_z_distribution,tumor_xy_bbox,546,0.798828125,0.798828125,1.0
+e5232c2e78976a23,sarcoma/GIST-like,肉瘤类,4,852377,ok,tumor_z_distribution,tumor_xy_bbox,516,0.7229999899864197,0.7229999899864197,1.0
+fc7061e70a4ba109,benign neurogenic,良性神经源性肿瘤,1,20649,ok,tumor_z_distribution,tumor_xy_bbox,500,0.900390625,0.900390625,1.0
+a1e0fcfbfaf432f5,sarcoma/GIST-like,肉瘤类,2,2454956,ok,tumor_z_distribution,tumor_xy_bbox,517,0.7265625,0.7265625,1.0
+3e792e2c42675c67,sarcoma/GIST-like,肉瘤类,1,8155,ok,tumor_z_distribution,tumor_xy_bbox,357,0.7851560115814209,0.7851560115814209,1.25
+d2ed569dc87fcfe6,benign neurogenic,良性神经源性肿瘤,4,47017,ok,tumor_z_distribution,tumor_xy_bbox,688,0.81640625,0.81640625,0.699999988079071
+5aad65c484c47a0e,lymphoma,淋巴瘤,2,668769,ok,tumor_z_distribution,tumor_xy_bbox,496,0.6830000281333923,0.6830000281333923,1.0
+7b16ab5e65de3e08,sarcoma/GIST-like,肉瘤类,4,3587980,ok,tumor_z_distribution,tumor_xy_bbox,471,0.6890000104904175,0.6890000104904175,1.0
+d32f6d09c3cc5bff,lymphoma,淋巴瘤,2,1930176,ok,tumor_z_distribution,tumor_xy_bbox,326,0.751953125,0.751953125,1.0
+5ae63df8501b0c53,sarcoma/GIST-like,肉瘤类,1,40036,ok,tumor_z_distribution,tumor_xy_bbox,385,0.7792969942092896,0.7792969942092896,1.25
+074bb5a3455fd3b8,PPGL,PPGL,3,117382,ok,tumor_z_distribution,tumor_xy_bbox,409,0.7304689884185791,0.7304689884185791,1.25
+f9f03b0a7475fa1f,sarcoma/GIST-like,肉瘤类,2,103106,ok,tumor_z_distribution,tumor_xy_bbox,473,0.787109375,0.787109375,1.0
+09777c339448bf3c,sarcoma/GIST-like,肉瘤类,4,257095,ok,tumor_z_distribution,tumor_xy_bbox,727,0.734375,0.734375,0.699999988079071
+82fc85f2295c9c2f,sarcoma/GIST-like,肉瘤类,4,84571,ok,tumor_z_distribution,tumor_xy_bbox,328,0.935546875,0.935546875,1.0
+97e0c8b987d5dff1,sarcoma/GIST-like,肉瘤类,4,269373,ok,tumor_z_distribution,tumor_xy_bbox,233,0.703125,0.703125,1.25
+761943150b14328b,sarcoma/GIST-like,肉瘤类,3,417919,ok,tumor_z_distribution,tumor_xy_bbox,393,0.703125,0.703125,1.25
+cbbd227cceec375e,benign neurogenic,良性神经源性肿瘤,5,315628,ok,tumor_z_distribution,tumor_xy_bbox,381,0.7714840173721313,0.7714840173721313,1.25
+fd2420ed5815211a,sarcoma/GIST-like,肉瘤类,2,48967,ok,tumor_z_distribution,tumor_xy_bbox,286,0.6679999828338623,0.6679999828338623,1.0
+17d2a41ddfab755f,sarcoma/GIST-like,胃肠道间质瘤,3,458604,ok,tumor_z_distribution,tumor_xy_bbox,349,0.8925780057907104,0.8925780057907104,1.25
+7d3bb5aa9d5e57eb,sarcoma/GIST-like,肉瘤类,3,3670743,ok,tumor_z_distribution,tumor_xy_bbox,741,0.783203125,0.783203125,0.699999988079071
+38ad8fb011922db2,benign neurogenic,良性神经源性肿瘤,5,17539,ok,tumor_z_distribution,tumor_xy_bbox,480,0.76171875,0.76171875,1.0
+66c6e57d842c605a,lymphoma,淋巴瘤,1,17408,ok,tumor_z_distribution,tumor_xy_bbox,626,0.8050000071525574,0.8050000071525574,0.800000011920929
+b4dfcb884594e550,PPGL,PPGL,5,1218630,ok,tumor_z_distribution,tumor_xy_bbox,265,0.8164060115814209,0.8164060115814209,1.25
+ce43e6cd6a1bd868,sarcoma/GIST-like,肉瘤类,2,118914,ok,tumor_z_distribution,tumor_xy_bbox,415,0.74609375,0.74609375,1.0
+6cc675e8d4a88cf7,lymphoma,淋巴瘤,4,12105,ok,tumor_z_distribution,tumor_xy_bbox,369,0.7949219942092896,0.7949219942092896,1.25
+33014320138eae88,benign neurogenic,良性神经源性肿瘤,2,5975,ok,tumor_z_distribution,tumor_xy_bbox,377,0.703125,0.703125,1.25
+006a19eef22ce801,sarcoma/GIST-like,肉瘤类,5,44810,ok,tumor_z_distribution,tumor_xy_bbox,500,0.763671875,0.763671875,1.0
+52a32291ab7ba986,sarcoma/GIST-like,肉瘤类,1,12640,ok,tumor_z_distribution,tumor_xy_bbox,438,0.728515625,0.728515625,1.0
+202769dc2250dae6,benign neurogenic,良性神经源性肿瘤,2,8910,ok,tumor_z_distribution,tumor_xy_bbox,217,0.6953120231628418,0.6953120231628418,1.25
+c880fa3ed6e83215,sarcoma/GIST-like,肉瘤类,4,819541,ok,tumor_z_distribution,tumor_xy_bbox,233,0.7558590173721313,0.7558590173721313,1.25
+b4436677414d6fe0,benign neurogenic,良性神经源性肿瘤,3,211307,ok,tumor_z_distribution,tumor_xy_bbox,276,0.6949999928474426,0.6949999928474426,1.0
+6cbfd987989c954c,sarcoma/GIST-like,胃肠道间质瘤,1,1639430,ok,tumor_z_distribution,tumor_xy_bbox,393,0.8046879768371582,0.8046879768371582,1.25
+b13589ac8cfcf871,benign neurogenic,良性神经源性肿瘤,4,177612,ok,tumor_z_distribution,tumor_xy_bbox,722,0.806640625,0.806640625,0.699999988079071
+cfe0a93153ff0c85,benign neurogenic,良性神经源性肿瘤,1,22072,ok,tumor_z_distribution,tumor_xy_bbox,429,0.9414060115814209,0.9414060115814209,1.25
+6636dde1161f78c3,benign neurogenic,良性神经源性肿瘤,3,39139,ok,tumor_z_distribution,tumor_xy_bbox,213,0.65625,0.65625,1.25
+5f1881bc0eb8b5d1,sarcoma/GIST-like,肉瘤类,5,807472,ok,tumor_z_distribution,tumor_xy_bbox,485,0.861328125,0.861328125,1.0
+77dd39caaefdc583,PPGL,PPGL,3,781094,ok,tumor_z_distribution,tumor_xy_bbox,430,0.70703125,0.70703125,1.0
+462964fa74009b23,sarcoma/GIST-like,胃肠道间质瘤,2,915114,ok,tumor_z_distribution,tumor_xy_bbox,441,0.7820000052452087,0.7820000052452087,1.0
+270b7e81cd1df431,benign neurogenic,良性神经源性肿瘤,3,2795494,ok,tumor_z_distribution,tumor_xy_bbox,326,0.677734375,0.677734375,1.0
+a1ae5c8a788fffc4,lymphoma,淋巴瘤,4,23820,ok,tumor_z_distribution,tumor_xy_bbox,385,0.7714840173721313,0.7714840173721313,1.25
+98680260f8703a59,lymphoma,淋巴瘤,2,13503,ok,tumor_z_distribution,tumor_xy_bbox,357,0.703125,0.703125,1.25
+2e15828c5c8315af,sarcoma/GIST-like,肉瘤类,2,169582,ok,tumor_z_distribution,tumor_xy_bbox,420,0.693359375,0.693359375,1.25
+1f74663e7151102e,sarcoma/GIST-like,肉瘤类,3,24338,ok,tumor_z_distribution,tumor_xy_bbox,429,0.7363280057907104,0.7363280057907104,1.25
+f381d797f63c6384,lymphoma,淋巴瘤,4,5206,ok,tumor_z_distribution,tumor_xy_bbox,442,0.685546875,0.685546875,1.0
+dff0d2a55f9ce403,sarcoma/GIST-like,肉瘤类,3,5436,ok,tumor_z_distribution,tumor_xy_bbox,281,0.7170000076293945,0.7170000076293945,1.0
+fea03c47a23c7c23,sarcoma/GIST-like,肉瘤类,3,2408575,ok,tumor_z_distribution,tumor_xy_bbox,724,0.703125,0.703125,0.699999988079071
+125eaa5699c270d2,sarcoma/GIST-like,肉瘤类,4,414140,ok,tumor_z_distribution,tumor_xy_bbox,368,0.775390625,0.775390625,1.25
+70e67f6286bf0432,sarcoma/GIST-like,肉瘤类,1,2113169,ok,tumor_z_distribution,tumor_xy_bbox,501,0.72265625,0.72265625,1.0
+41814ada676ddbe6,PPGL,PPGL,1,114984,ok,tumor_z_distribution,tumor_xy_bbox,536,0.736328125,0.736328125,1.0
+f75f65471d534ced,sarcoma/GIST-like,肉瘤类,5,48003,ok,tumor_z_distribution,tumor_xy_bbox,233,0.583984375,0.583984375,1.0
+edbae8c954744a38,sarcoma/GIST-like,胃肠道间质瘤,1,310029,ok,tumor_z_distribution,tumor_xy_bbox,532,0.83203125,0.83203125,1.25
+d96b15e64778662d,benign neurogenic,良性神经源性肿瘤,4,79233,ok,tumor_z_distribution,tumor_xy_bbox,241,0.578000009059906,0.578000009059906,1.0
+c8a8de285e580730,PPGL,PPGL,5,91870,ok,tumor_z_distribution,tumor_xy_bbox,389,0.7675780057907104,0.7675780057907104,1.2500026226043701
+125873c75acd8caa,sarcoma/GIST-like,肉瘤类,5,79605,ok,tumor_z_distribution,tumor_xy_bbox,165,0.7734379768371582,0.7734379768371582,1.25
+ec8c2ac7a31e2878,PPGL,PPGL,4,2262309,ok,tumor_z_distribution,tumor_xy_bbox,506,0.85546875,0.85546875,1.0
+c58233820be722d7,sarcoma/GIST-like,肉瘤类,2,12528,ok,tumor_z_distribution,tumor_xy_bbox,443,0.62109375,0.62109375,1.0
+775d8ce8cdcb75c7,PPGL,PPGL,3,35471,ok,tumor_z_distribution,tumor_xy_bbox,361,0.8027340173721313,0.8027340173721313,1.25
+209628aefc33ff7e,benign neurogenic,良性神经源性肿瘤,5,41784,ok,tumor_z_distribution,tumor_xy_bbox,770,0.771484375,0.771484375,0.699999988079071
+fa5a37d44f5bf15f,sarcoma/GIST-like,肉瘤类,4,247723,ok,tumor_z_distribution,tumor_xy_bbox,402,0.72265625,0.72265625,0.699999988079071
+58ddf42950e700bc,sarcoma/GIST-like,肉瘤类,2,687113,ok,tumor_z_distribution,tumor_xy_bbox,475,0.712890625,0.712890625,1.0
+17ccd69b89497d2e,benign neurogenic,良性神经源性肿瘤,2,306432,ok,tumor_z_distribution,tumor_xy_bbox,433,0.8964840173721313,0.8964840173721313,1.25
+317bb6b86d51aff5,sarcoma/GIST-like,肉瘤类,2,159300,ok,tumor_z_distribution,tumor_xy_bbox,401,0.734375,0.734375,1.25
+17fdc1e761843031,sarcoma/GIST-like,肉瘤类,1,1333977,ok,tumor_z_distribution,tumor_xy_bbox,277,0.7851560115814209,0.7851560115814209,1.25
+0c14e1329b56f58b,lymphoma,淋巴瘤,1,200894,ok,tumor_z_distribution,tumor_xy_bbox,476,0.625,0.625,1.0
+817898e61f7e681b,sarcoma/GIST-like,肉瘤类,4,155627,ok,tumor_z_distribution,tumor_xy_bbox,481,0.7429999709129333,0.7429999709129333,1.0
+92d5c7eb0893b810,sarcoma/GIST-like,肉瘤类,1,562532,ok,tumor_z_distribution,tumor_xy_bbox,413,0.7949219942092896,0.7949219942092896,1.25
+87c7631fea5dcd68,benign neurogenic,良性神经源性肿瘤,3,40288,ok,tumor_z_distribution,tumor_xy_bbox,273,0.7929689884185791,0.7929689884185791,1.25
+6de4c8474de9dca8,lymphoma,淋巴瘤,5,54690,ok,tumor_z_distribution,tumor_xy_bbox,425,0.8359379768371582,0.8359379768371582,1.25
+a1a620ac9a133f22,lymphoma,淋巴瘤,3,148589,ok,tumor_z_distribution,tumor_xy_bbox,381,0.8710939884185791,0.8710939884185791,1.25
+864b65bd62b018c4,sarcoma/GIST-like,肉瘤类,1,63924,ok,tumor_z_distribution,tumor_xy_bbox,393,0.8652340173721313,0.8652340173721313,1.25
+b764dbe5e1f062ce,lymphoma,淋巴瘤,5,335426,ok,tumor_z_distribution,tumor_xy_bbox,349,0.703125,0.703125,1.25
+ea84d73ebc0260bc,sarcoma/GIST-like,肉瘤类,5,269353,ok,tumor_z_distribution,tumor_xy_bbox,377,0.7480469942092896,0.7480469942092896,1.25
+42424c98a28b81fd,PPGL,PPGL,1,12017,ok,tumor_z_distribution,tumor_xy_bbox,213,0.6484379768371582,0.6484379768371582,1.25
+6b5df8b24d99d565,lymphoma,淋巴瘤,2,253225,ok,tumor_z_distribution,tumor_xy_bbox,291,0.746999979019165,0.746999979019165,1.0
+00b1d402d9413950,benign neurogenic,良性神经源性肿瘤,5,191539,ok,tumor_z_distribution,tumor_xy_bbox,309,0.6796875,0.6796875,1.0
+d07c04c1e08e39a2,benign neurogenic,良性神经源性肿瘤,2,11371,ok,tumor_z_distribution,tumor_xy_bbox,145,0.6542969942092896,0.6542969942092896,1.25
+6972f422eaeaa826,sarcoma/GIST-like,肉瘤类,1,1701077,ok,tumor_z_distribution,tumor_xy_bbox,369,0.7304689884185791,0.7304689884185791,1.25
+54c20592033fc96e,sarcoma/GIST-like,肉瘤类,5,422226,ok,tumor_z_distribution,tumor_xy_bbox,393,0.7851560115814209,0.7851560115814209,1.25
+2ec26e18b830fd7f,lymphoma,淋巴瘤,1,7743,ok,tumor_z_distribution,tumor_xy_bbox,445,0.775390625,0.775390625,1.0
+a17d20778105c0c3,sarcoma/GIST-like,肉瘤类,5,173961,ok,tumor_z_distribution,tumor_xy_bbox,217,0.78125,0.78125,1.25
+4d35ea26cea2837a,sarcoma/GIST-like,肉瘤类,3,1439599,ok,tumor_z_distribution,tumor_xy_bbox,257,0.78125,0.78125,1.25
+c36c7ef1030c55f6,PPGL,PPGL,1,502916,ok,tumor_z_distribution,tumor_xy_bbox,700,0.775390625,0.775390625,0.699999988079071
+69bc1dd909f822f0,sarcoma/GIST-like,胃肠道间质瘤,1,563900,ok,tumor_z_distribution,tumor_xy_bbox,381,0.7832030057907104,0.7832030057907104,1.25
+35efbf179e9ae49b,lymphoma,淋巴瘤,1,1665296,ok,tumor_z_distribution,tumor_xy_bbox,381,0.7597659826278687,0.7597659826278687,1.25
+1acae62aae8b32d1,sarcoma/GIST-like,胃肠道间质瘤,2,165271,ok,tumor_z_distribution,tumor_xy_bbox,357,0.8457030057907104,0.8457030057907104,1.25
+14f878f60d17021e,sarcoma/GIST-like,肉瘤类,1,751925,ok,tumor_z_distribution,tumor_xy_bbox,483,0.8359375,0.8359375,1.0
+ca464672e199e156,sarcoma/GIST-like,肉瘤类,3,557844,ok,tumor_z_distribution,tumor_xy_bbox,275,0.7734375,0.7734375,1.0
+d40a855196b3752f,sarcoma/GIST-like,肉瘤类,2,230529,ok,tumor_z_distribution,tumor_xy_bbox,716,0.767578125,0.767578125,0.699999988079071
+b1ba8156423ba702,lymphoma,淋巴瘤,4,12544,ok,tumor_z_distribution,tumor_xy_bbox,644,0.6875,0.6875,0.699999988079071
+cca395a65ec7f382,benign neurogenic,良性神经源性肿瘤,1,187594,ok,tumor_z_distribution,tumor_xy_bbox,476,0.625,0.625,1.0
+32b598ab77bbebaa,sarcoma/GIST-like,肉瘤类,4,2096861,ok,tumor_z_distribution,tumor_xy_bbox,449,0.8535159826278687,0.8535159826278687,1.25
+4f66260f8bd4e9e4,PPGL,PPGL,4,455510,ok,tumor_z_distribution,tumor_xy_bbox,782,0.791015625,0.791015625,0.699999988079071
+9b3607cb0996cdd9,PPGL,PPGL,2,130323,ok,tumor_z_distribution,tumor_xy_bbox,281,0.72265625,0.72265625,1.0
+8502b7aedb19dfca,benign neurogenic,良性神经源性肿瘤,5,1363885,ok,tumor_z_distribution,tumor_xy_bbox,496,0.6650000214576721,0.6650000214576721,1.0
+ed30f7ae357a85b0,sarcoma/GIST-like,肉瘤类,4,7148,ok,tumor_z_distribution,tumor_xy_bbox,466,0.7289999723434448,0.7289999723434448,1.0
+cf42986aaa79ae71,sarcoma/GIST-like,肉瘤类,5,1695025,ok,tumor_z_distribution,tumor_xy_bbox,429,0.9082030057907104,0.9082030057907104,1.25
+56ad01f891ac5b65,benign neurogenic,良性神经源性肿瘤,5,74282,ok,tumor_z_distribution,tumor_xy_bbox,357,0.703125,0.703125,1.25
+c335295124554923,lymphoma,淋巴瘤,3,19077,ok,tumor_z_distribution,tumor_xy_bbox,295,0.701171875,0.701171875,1.0
+1ca8c36386768018,lymphoma,淋巴瘤,2,54845,ok,tumor_z_distribution,tumor_xy_bbox,373,0.7363280057907104,0.7363280057907104,1.25
+c81c4aed5972aac0,benign neurogenic,良性神经源性肿瘤,1,13814,ok,tumor_z_distribution,tumor_xy_bbox,461,0.66796875,0.66796875,1.0
+fb1df950c5994382,lymphoma,淋巴瘤,2,288839,ok,tumor_z_distribution,tumor_xy_bbox,335,0.76171875,0.76171875,1.0
+1364745d81372195,sarcoma/GIST-like,胃肠道间质瘤,4,84062,ok,tumor_z_distribution,tumor_xy_bbox,373,0.78125,0.78125,1.25
+a939f597be8705ba,sarcoma/GIST-like,肉瘤类,4,166496,ok,tumor_z_distribution,tumor_xy_bbox,405,0.9042969942092896,0.9042969942092896,1.25
+9f5781dabec84386,lymphoma,淋巴瘤,5,18043,ok,tumor_z_distribution,tumor_xy_bbox,409,0.69921875,0.69921875,1.25
+56db7a34c7aea930,benign neurogenic,良性神经源性肿瘤,1,69621,ok,tumor_z_distribution,tumor_xy_bbox,405,0.8710939884185791,0.8710939884185791,1.25
+c5791fc70f1b3af6,lymphoma,淋巴瘤,4,215158,ok,tumor_z_distribution,tumor_xy_bbox,409,0.8085939884185791,0.8085939884185791,1.25
+46afe2cba91620b8,sarcoma/GIST-like,肉瘤类,3,497911,ok,tumor_z_distribution,tumor_xy_bbox,286,0.68359375,0.68359375,1.0
+2a7db0ba79b4cbad,benign neurogenic,良性神经源性肿瘤,1,149002,ok,tumor_z_distribution,tumor_xy_bbox,341,0.7128909826278687,0.7128909826278687,1.25
+c3fc26ce5c03b603,PPGL,PPGL,5,153750,ok,tumor_z_distribution,tumor_xy_bbox,229,0.8007810115814209,0.8007810115814209,1.25
+e841990d0a353a94,sarcoma/GIST-like,肉瘤类,5,246194,ok,tumor_z_distribution,tumor_xy_bbox,445,0.70703125,0.70703125,1.0
+c23130b4abef5676,PPGL,PPGL,3,316118,ok,tumor_z_distribution,tumor_xy_bbox,365,0.703125,0.703125,1.25
+52b66c5b2eb0bd2a,sarcoma/GIST-like,肉瘤类,5,177598,ok,tumor_z_distribution,tumor_xy_bbox,433,0.9765620231628418,0.9765620231628418,1.25
+cb5d8c801480ffa0,benign neurogenic,良性神经源性肿瘤,4,5321,ok,tumor_z_distribution,tumor_xy_bbox,401,0.765625,0.765625,1.25
+65274a9164fc8281,lymphoma,淋巴瘤,3,1061956,ok,tumor_z_distribution,tumor_xy_bbox,227,0.69921875,0.69921875,1.0
+afccaa6a842bd9e1,benign neurogenic,良性神经源性肿瘤,3,111895,ok,tumor_z_distribution,tumor_xy_bbox,373,0.7636719942092896,0.7636719942092896,1.25
+b82ed4125024e1ea,PPGL,PPGL,2,1238510,ok,tumor_z_distribution,tumor_xy_bbox,285,0.69921875,0.69921875,1.0
+e6b8d2d3db6ee827,benign neurogenic,良性神经源性肿瘤,2,45287,ok,tumor_z_distribution,tumor_xy_bbox,369,0.703125,0.703125,1.25
+1f214ad282874af4,sarcoma/GIST-like,肉瘤类,5,453666,ok,tumor_z_distribution,tumor_xy_bbox,496,0.7578125,0.7578125,1.0
+c7b95a5f6654b3d1,sarcoma/GIST-like,肉瘤类,2,787271,ok,tumor_z_distribution,tumor_xy_bbox,227,0.740234375,0.740234375,1.0
+0f078817655ef589,sarcoma/GIST-like,肉瘤类,2,76137,ok,tumor_z_distribution,tumor_xy_bbox,486,0.7139999866485596,0.7139999866485596,1.0
+c23709bdb8615f1a,sarcoma/GIST-like,肉瘤类,5,51689,ok,tumor_z_distribution,tumor_xy_bbox,535,0.712890625,0.712890625,1.0
+1f81dd51dbb42e6f,lymphoma,淋巴瘤,5,125903,ok,tumor_z_distribution,tumor_xy_bbox,657,0.7170000076293945,0.7170000076293945,0.800000011920929
+13ef09ca76361204,lymphoma,淋巴瘤,4,913851,ok,tumor_z_distribution,tumor_xy_bbox,393,0.74609375,0.74609375,1.25
+8cd04f891471ef18,sarcoma/GIST-like,肉瘤类,3,152737,ok,tumor_z_distribution,tumor_xy_bbox,622,0.70703125,0.70703125,0.699999988079071
+2de595decb867be9,benign neurogenic,良性神经源性肿瘤,3,180914,ok,tumor_z_distribution,tumor_xy_bbox,338,0.6859999895095825,0.6859999895095825,0.800000011920929
+a3856b59d74d6576,sarcoma/GIST-like,肉瘤类,4,650017,ok,tumor_z_distribution,tumor_xy_bbox,377,0.806640625,0.806640625,1.25
+6a31ec19255af2e1,PPGL,PPGL,2,68978,ok,tumor_z_distribution,tumor_xy_bbox,384,0.68359375,0.68359375,1.25
+7f63214a8e5ab567,sarcoma/GIST-like,肉瘤类,3,245851,ok,tumor_z_distribution,tumor_xy_bbox,389,0.8691409826278687,0.8691409826278687,1.25
+3a03bac08fcb123f,benign neurogenic,良性神经源性肿瘤,2,483569,ok,tumor_z_distribution,tumor_xy_bbox,495,0.78125,0.78125,1.0
+9a6db97db6630e6c,lymphoma,淋巴瘤,3,2079182,ok,tumor_z_distribution,tumor_xy_bbox,510,0.6796875,0.6796875,1.0
+5d6eeae49d62a418,PPGL,PPGL,4,64860,ok,tumor_z_distribution,tumor_xy_bbox,389,0.8515620231628418,0.8515620231628418,1.25
+e2537f43936c3db1,benign neurogenic,良性神经源性肿瘤,4,28435,ok,tumor_z_distribution,tumor_xy_bbox,225,0.703125,0.703125,1.25
+7a423dc366918d93,sarcoma/GIST-like,胃肠道间质瘤,4,2038497,ok,tumor_z_distribution,tumor_xy_bbox,285,0.830078125,0.830078125,1.0
+4390babc104133af,sarcoma/GIST-like,肉瘤类,4,43108,ok,tumor_z_distribution,tumor_xy_bbox,353,0.7910159826278687,0.7910159826278687,1.25
+68c3f4c4c2497137,sarcoma/GIST-like,肉瘤类,3,262987,ok,tumor_z_distribution,tumor_xy_bbox,369,0.7871090173721313,0.7871090173721313,1.25
+58f76ebcbb3db019,lymphoma,淋巴瘤,2,314706,ok,tumor_z_distribution,tumor_xy_bbox,500,0.779296875,0.779296875,1.0
+2b6b49f3e2a1f55d,sarcoma/GIST-like,肉瘤类,5,584147,ok,tumor_z_distribution,tumor_xy_bbox,409,0.8046879768371582,0.8046879768371582,1.25
+431b2ec16edcdc53,lymphoma,淋巴瘤,3,10610,ok,tumor_z_distribution,tumor_xy_bbox,361,0.7773439884185791,0.7773439884185791,1.25
+6bffa4138be288b9,benign neurogenic,良性神经源性肿瘤,3,142258,ok,tumor_z_distribution,tumor_xy_bbox,495,0.84765625,0.84765625,1.0
+c3b8e9de037baf34,sarcoma/GIST-like,肉瘤类,1,393181,ok,tumor_z_distribution,tumor_xy_bbox,393,0.8007810115814209,0.8007810115814209,1.25
