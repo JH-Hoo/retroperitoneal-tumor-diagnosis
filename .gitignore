@@ -3,30 +3,32 @@ __MACOSX/
 __pycache__/
 *.pyc
 
-# Local/private data
+# Private clinical data
 data_private/
+dataset_*/
 data/raw/
 data/tables/
 *.xls
 *.xlsx
 
-# Medical images and tensor cache
+# Medical images and tensor caches
 *.nii
 *.nii.gz
-data/cache_*/tensors/
-data/features_*/features/
+data/**/tensors/
+data/**/*.pt
+data/**/all.csv
+data/**/build_manifest.csv
+data/**/splits/
+data/labels/*.csv
+data/labels/*.json
 
-# Model weights
+# Model weights and training logs
 *.pt
 *.pth
 *.ckpt
-
-# Local logs and trackers
+models/
 logs/
 wandb/
 
-# Old flat-layout folders if restored locally
-code/
-models/
-dataset_*/
-experiments/
+# Local external checkouts
+external/flare23_champion/flare23/

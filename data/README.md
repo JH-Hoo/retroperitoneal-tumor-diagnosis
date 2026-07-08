@@ -1,14 +1,14 @@
-# Data
+# Data Directory
 
-This directory contains only de-identified labels, patient-level split files, and cache metadata.
+This repository keeps only lightweight metadata for the current champion FLARE23 + 2.5D ResNet pipeline.
 
-Private source files are kept outside Git under `data_private/`, including:
+Private or generated files are intentionally ignored:
 
+- original CT NIfTI files
 - source Excel sheets
-- raw NIfTI metadata with PHI
-- linkage audit files
-- hash salt
-- raw NIfTI images
-- tensor cache files
+- patient linkage tables
+- generated label CSV files
+- tensor caches
+- model weights
 
-Canonical training labels are in `data/labels/labels_5class.csv`.
+The committed `champion_flare23_25d_cache_15x224_minvox5000/dataset_summary.json` records the expected tensor shape and channel definition for the current run.

@@ -1,128 +1,107 @@
 # Retroperitoneal Tumor CT Diagnosis
 
-## What This Project Does
+This repository is intentionally narrowed to the current working pipeline:
 
-This project trains weakly supervised 2.5D MIL models for retroperitoneal tumor diagnosis from contrast-enhanced CT.
+1. Generate organ and tumor-candidate masks with the Shenzhen-Yorktal FLARE23 champion project.
+2. Use FLARE label `14` to sample lesion-guided 2.5D CT slices.
+3. Train an ImageNet-pretrained ResNet18 attention-MIL model for binary diagnosis.
 
-The current baseline does not use tumor segmentation or manual lesion boxes. Each CT case is represented by 96 axial slices with three CT windows, then aggregated into a case-level prediction. The latest small-data experiment freezes a ResNet18 slice feature extractor and trains only a lightweight MIL head.
+The binary task is:
 
-## Dataset
+- benign: `良性神经源性肿瘤`
+- malignant/risk: `肉瘤类 + PPGL + 淋巴瘤 + 胃肠道间质瘤`
 
-- Original CT NIfTI files: 252
-- Skipped corrupted NIfTI files: 3
-- 96-slice cache tensors: 249
-- Supervised five-class cases: 246
-- Split: 5-fold `StratifiedGroupKFold` by salted `patient_uid_hash`
-- Classes: 肉瘤类, 良性神经源性肿瘤, PPGL, 淋巴瘤, 胃肠道间质瘤
+This branch contains only the champion-mask 2.5D ResNet pipeline and its current binary CV summary.
 
-Raw NIfTI files, tensor cache files, source Excel sheets, linkage tables, hash salt, and model weights are not included in GitHub.
+## External Segmentation
 
-## Method
+The champion FLARE23 implementation is an external dependency, not vendored code.
 
-- Input tensor per case: `96 x 3 x 224 x 224`
-- CT windows:
-  - soft tissue: `[-160, 240]`
-  - fat-sensitive: `[-200, 100]`
-  - wide abdomen: `[-200, 400]`
-- Cache variants: whole-abdomen and simple body crop
-- Backbone: ImageNet-pretrained ResNet18
-- Current preferred baseline: frozen slice features + mean/max MIL head
-- Earlier baseline: partial fine-tuning with attention MIL
-- Loss: class-weighted cross entropy
+See [external/flare23_champion/README.md](external/flare23_champion/README.md).
 
-## Current Experiment
+Remote inference helper:
 
-Current frozen-feature 5-fold runs:
+```bash
+bash scripts/monitor_and_run_flare23_champion.sh
+```
+
+Expected champion outputs:
 
 ```text
-runs/*features*_fold0_meanmax/
-runs/*features*_fold1_meanmax/
-runs/*features*_fold2_meanmax/
-runs/*features*_fold3_meanmax/
-runs/*features*_fold4_meanmax/
+/root/autodl-tmp/flare23_champion_outputs/Gxxxx.nii.gz
 ```
 
-5-fold test results are reported as mean +/- standard deviation:
+## 2.5D Input
 
-| Task | Input | Balanced Accuracy | Macro-F1 | AUROC |
-|---|---|---:|---:|---:|
-| Five-class | Whole | 0.252 +/- 0.071 | 0.234 +/- 0.060 |  |
-| Five-class | Body crop | 0.236 +/- 0.106 | 0.217 +/- 0.094 |  |
-| Sarcoma vs non | Whole | 0.571 +/- 0.108 | 0.568 +/- 0.110 | 0.591 +/- 0.119 |
-| Sarcoma vs non | Body crop | 0.581 +/- 0.066 | 0.561 +/- 0.087 | 0.600 +/- 0.048 |
-| PPGL vs non | Whole | 0.534 +/- 0.116 | 0.501 +/- 0.085 | 0.568 +/- 0.136 |
-| PPGL vs non | Body crop | 0.575 +/- 0.136 | 0.547 +/- 0.111 | 0.622 +/- 0.137 |
-| Lymphoma vs non | Whole | 0.487 +/- 0.112 | 0.473 +/- 0.107 | 0.508 +/- 0.117 |
-| Lymphoma vs non | Body crop | 0.498 +/- 0.103 | 0.480 +/- 0.091 | 0.510 +/- 0.086 |
-
-These numbers remain exploratory, but they are now patient-level 5-fold estimates instead of a single-fold smoke test.
-
-Report:
+Each case is converted into a tensor:
 
 ```text
-reports/frozen_feature_meanmax_5fold_report.md
+15 slices x 5 channels x 224 x 224
 ```
 
-## How To Run
+Channels:
 
-Prepare de-identified labels and patient-level folds:
+1. soft-tissue CT window
+2. fat-sensitive CT window
+3. tumor mask, FLARE label `14`
+4. 2D peritumor shell
+5. organ union, FLARE labels `1-13`
+
+The current default keeps cases with at least `5000` champion label14 voxels.
+
+## Run On The 4090 Machine
+
+After champion FLARE23 inference and label14 statistics are available:
 
 ```bash
-python scripts/01_prepare_5class_labels.py
+bash scripts/run_champion_resnet25d_binary_remote.sh
 ```
 
-Build the 96-slice cache from private NIfTI files:
+The script runs:
 
-```bash
-python scripts/02_build_96slice_cache.py
-CACHE_NAME=cache_body_96slice BODY_CROP=1 python scripts/02_build_96slice_cache.py
-```
+1. `scripts/prepare_champion_minvox_labels.py`
+2. `scripts/build_flare23_25d_cache.py`
+3. `scripts/train_resnet25d_binary_cv.py`
 
-Train the earlier partial fine-tuning fold 0 baseline:
+Private NIfTI files, Excel sheets, tensor caches, and model weights are ignored by Git.
 
-```bash
-python scripts/03_train_mil.py
-```
+## Current Result
 
-Extract frozen ResNet18 features:
+Current champion-mask binary 5-fold OOF result, using `minvox5000`:
 
-```bash
-CACHE_NAME=cache_96slice python scripts/03_extract_slice_features.py
-CACHE_NAME=cache_body_96slice python scripts/03_extract_slice_features.py
-```
+| Model | Cases | Accuracy | Balanced Accuracy | Macro F1 | Benign Recall | Risk Recall |
+|---|---:|---:|---:|---:|---:|---:|
+| Champion FLARE23 + 2.5D ResNet | 179 | 0.838 | 0.718 | 0.721 | 0.531 | 0.905 |
 
-Train frozen-feature MIL heads:
+Confusion matrix:
 
-```bash
-FEATURE_NAME=features_cache_96slice_resnet18 TASK=5class POOLING=meanmax python scripts/04_train_mil_head.py
-FEATURE_NAME=features_cache_body_96slice_resnet18 TASK=ppgl POOLING=meanmax python scripts/04_train_mil_head.py
-```
+![OOF confusion matrix](reports/champion_resnet25d_binary_minvox5000/confusion_matrix.png)
 
-Regenerate the earlier fine-tuning report:
-
-```bash
-python scripts/05_make_report.py
-```
-
-Summarize frozen-feature 5-fold runs:
-
-```bash
-python scripts/06_summarize_frozen_5fold.py
-```
-
-## Repository Structure
+Full summary:
 
 ```text
-configs/   One small YAML file for the current run
-scripts/   Ordered scripts: prepare labels, build cache, train, report
-data/      De-identified labels and cache metadata
-runs/      Experiment outputs, metrics, predictions, figures
-reports/   Markdown report
-envs/      CUDA/PyTorch environment files
+reports/champion_resnet25d_binary_minvox5000/summary.json
 ```
 
-Private local-only content lives under `data_private/` and is ignored by Git.
+## Repository Layout
 
-## Notes
+```text
+scripts/
+  monitor_and_run_flare23_champion.sh
+  prepare_champion_minvox_labels.py
+  build_flare23_25d_cache.py
+  train_resnet25d_binary_cv.py
+  run_champion_resnet25d_binary_remote.sh
 
-The current result is a lightweight baseline. It shows that the pipeline works, but it is not strong enough to claim stable clinical performance. The next useful step is retroperitoneal or lesion coarse crop, not a larger whole-volume model.
+external/flare23_champion/
+  README.md
+
+reports/champion_resnet25d_binary_minvox5000/
+  summary.json
+  oof_predictions.csv
+  confusion_matrix.png
+
+data/champion_flare23_25d_cache_15x224_minvox5000/
+  dataset_summary.json
+  tensors_sha256.csv
+```
