@@ -24,6 +24,34 @@ DEFAULT_OUT_ROOT = PROJECT_ROOT / "data" / "champion_flare23_25d_cache_15x224_mi
 CLASS_NAMES = ["肉瘤类", "良性神经源性肿瘤", "PPGL", "淋巴瘤", "胃肠道间质瘤"]
 CHANNELS = ["ct_soft", "ct_fat", "tumor_mask", "tumor_shell_2d", "organ_union"]
 WINDOWS = {"ct_soft": [-150.0, 250.0], "ct_fat": [-250.0, 150.0]}
+REUSE_META_COLUMNS = [
+    "cache_status",
+    "sample_status",
+    "crop_status",
+    "spacing_x_mm",
+    "spacing_y_mm",
+    "spacing_z_mm",
+    "crop_x",
+    "crop_y",
+    "source_z",
+    "selected_z_indices",
+    "selected_z_norm",
+    "z_hist",
+    "tumor_voxels",
+    "no_tumor_label14",
+    "z_peak_norm",
+    "z_centroid_norm",
+    "z_std_norm",
+    "z_q10_norm",
+    "z_q25_norm",
+    "z_q50_norm",
+    "z_q75_norm",
+    "z_q90_norm",
+    "tumor_z_slices",
+    "tumor_z_extent_norm",
+    "tumor_area_max_frac",
+    "tumor_area_entropy",
+]
 
 
 def read_rows(path):
@@ -321,6 +349,22 @@ def select_rows(rows, image_root, mask_dir, max_cases, max_per_class, include_un
     return selected
 
 
+def load_reuse_rows(cache_roots):
+    out = {}
+    for root in cache_roots or []:
+        root = Path(root)
+        csv_path = root / "all.csv"
+        if not csv_path.exists():
+            continue
+        for row in read_rows(csv_path):
+            group = row.get("group", "")
+            tensor = row.get("tensor", "")
+            tensor_path = root / tensor
+            if group and tensor and tensor_path.exists() and row.get("cache_status") == "ok":
+                out[group] = {"root": root, "row": row, "tensor_path": tensor_path}
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build FLARE23 label14-guided 2.5D slice cache.")
     parser.add_argument("--labels-csv", type=Path, default=DEFAULT_LABELS)
@@ -336,6 +380,7 @@ def main():
     parser.add_argument("--max-cases", type=int, default=0)
     parser.add_argument("--max-per-class", type=int, default=0)
     parser.add_argument("--include-unlabeled", action="store_true")
+    parser.add_argument("--reuse-cache-root", type=Path, action="append", default=[])
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
 
@@ -352,6 +397,7 @@ def main():
         args.max_per_class,
         args.include_unlabeled,
     )
+    reuse_rows = load_reuse_rows(args.reuse_cache_root)
     out_rows, checksum_rows, status_counts = [], [], defaultdict(int)
     for i, row in enumerate(rows, 1):
         group = row["group"]
@@ -363,7 +409,15 @@ def main():
         rr["source_mask"] = str(args.mask_dir / f"{group}.nii.gz")
         rr["tensor"] = f"tensors/{group}.pt"
         try:
-            if args.overwrite or not out_path.exists():
+            reuse = None if args.overwrite else reuse_rows.get(group)
+            if reuse is not None:
+                if not out_path.exists():
+                    shutil.copy2(reuse["tensor_path"], out_path)
+                tensor = torch.load(out_path, map_location="cpu")
+                meta = {k: reuse["row"].get(k, "") for k in REUSE_META_COLUMNS if k in reuse["row"]}
+                meta["sample_status"] = f"reused:{reuse['root'].name}:{meta.get('sample_status', '')}"
+                meta["crop_status"] = f"reused:{reuse['root'].name}:{meta.get('crop_status', '')}"
+            else:
                 tensor, meta = make_case_tensor(
                     args.image_root / row["image"],
                     args.mask_dir / f"{group}.nii.gz",
@@ -375,9 +429,6 @@ def main():
                     args.z_hist_bins,
                 )
                 torch.save(tensor, out_path)
-            else:
-                tensor = torch.load(out_path, map_location="cpu")
-                meta = {"cache_status": "ok", "sample_status": "existing", "crop_status": "existing"}
             rr.update(meta)
             rr["cache_status"] = "ok"
             rr["error"] = ""
@@ -426,10 +477,11 @@ def main():
             "fallback": "organ z distribution, then even z",
         },
         "z_hist_bins": args.z_hist_bins,
-        "margin_mm": args.margin_mm,
-        "shell_mm": args.shell_mm,
-        "class_names": CLASS_NAMES,
-    }
+            "margin_mm": args.margin_mm,
+            "shell_mm": args.shell_mm,
+            "reuse_cache_roots": [str(p) for p in args.reuse_cache_root],
+            "class_names": CLASS_NAMES,
+        }
     (args.out_root / "dataset_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"wrote {args.out_root}", flush=True)
 

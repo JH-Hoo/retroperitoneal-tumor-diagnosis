@@ -89,7 +89,7 @@ def main():
         rr["derived_binary_id"] = 1 if cls == BENIGN_CLINICAL4_ID else 0
         rr["derived_binary_name"] = "benign-like" if cls == BENIGN_CLINICAL4_ID else "risk/workup"
         rr["champion_tumor_voxels"] = voxels
-        rr["no_tumor_label14"] = 0
+        rr["no_tumor_label14"] = 1 if voxels <= 0 else 0
         rows.append(rr)
 
     write_rows(args.out, rows)

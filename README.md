@@ -119,18 +119,23 @@ Full summary:
 reports/champion_resnet25d_clinical4_minvox5000/summary.json
 ```
 
-## Current Ablation
+## P0 Ablations
 
-The first P0 ablation repeats the same 179-case 5-fold OOF experiment with
-structured auxiliary features disabled (`--no-aux`):
+The P0 signal-source ablations now cover aux-only, no-aux, CT-only, CT + tumor
+mask, CT + tumor mask + shell, mask-channel initialization, and `minvox`
+thresholds.
 
-| Run | Clinical4 Accuracy | Clinical4 Balanced Accuracy | Clinical4 Macro F1 | Clinical4 Top-2 Accuracy | Binary Head Accuracy | Binary Head Balanced Accuracy |
-|---|---:|---:|---:|---:|---:|---:|
-| full aux | 0.592 | 0.532 | 0.529 | 0.816 | 0.849 | 0.725 |
-| no aux | 0.547 | 0.500 | 0.485 | 0.821 | 0.810 | 0.701 |
+Key takeaways:
 
-This suggests auxiliary features help the top-1 and binary-head metrics, but the
-CT/mask slice bag still carries useful signal. See:
+- Aux-only is much weaker than the image/MIL models, so the result is not just
+  an auxiliary-feature shortcut.
+- CT + FLARE label14 tumor mask is the strongest no-aux channel combination in
+  this seed.
+- Zero mask-channel initialization remains the best current default.
+- Broadening from `minvox5000` to `minvox1000` or `minvox0` lowers clinical4
+  performance, so the cohort threshold must be reported explicitly.
+
+Full table and artifacts:
 
 ```text
 reports/ablations/README.md
@@ -144,6 +149,8 @@ scripts/
   prepare_champion_minvox_labels.py
   build_flare23_25d_cache.py
   train_resnet25d_clinical4_cv.py
+  train_aux_clinical4_cv.py
+  run_p0_ablations_remote.sh
   run_champion_resnet25d_clinical4_remote.sh
 
 external/flare23_champion/
@@ -160,11 +167,12 @@ reports/champion_resnet25d_clinical4_minvox5000/
 
 reports/ablations/
   README.md
-  no_aux_minvox5000/
+  <run_name>/
     summary.json
     oof_predictions.csv
     oof_predictions_derived_binary.csv
     oof_predictions_binary_head.csv
+    *confusion_matrix.png
 
 data/champion_flare23_25d_cache_15x224_minvox5000/
   dataset_summary.json

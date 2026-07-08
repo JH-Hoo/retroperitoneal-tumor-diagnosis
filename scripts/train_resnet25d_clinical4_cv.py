@@ -58,6 +58,14 @@ BASE_AUX_COLUMNS = [
     "crop_y",
     "spacing_z_mm",
 ]
+CHANNEL_SETS = {
+    "all": [0, 1, 2, 3, 4],
+    "ct_only": [0, 1],
+    "ct_tumor": [0, 1, 2],
+    "ct_tumor_shell": [0, 1, 2, 3],
+    "ct_tumor_shell_organ": [0, 1, 2, 3, 4],
+}
+CHANNEL_NAMES = ["ct_soft", "ct_fat", "tumor_mask", "tumor_shell_2d", "organ_union"]
 
 
 def read_rows(path):
@@ -231,10 +239,11 @@ class ZPriorScaler:
 
 
 class SliceBagDataset(Dataset):
-    def __init__(self, rows, cache_root, aux_scaler=None):
+    def __init__(self, rows, cache_root, aux_scaler=None, channel_indices=None):
         self.rows = rows
         self.cache_root = Path(cache_root)
         self.aux_scaler = aux_scaler
+        self.channel_indices = list(channel_indices or CHANNEL_SETS["all"])
 
     def __len__(self):
         return len(self.rows)
@@ -243,6 +252,7 @@ class SliceBagDataset(Dataset):
         row = self.rows[i]
         x = torch.load(self.cache_root / row["tensor"], map_location="cpu").float().div(255.0)
         x[:, 0:2] = (x[:, 0:2] - CT_MEAN) / CT_STD
+        x = x[:, self.channel_indices]
         z = parse_semicolon_floats(row.get("selected_z_norm", ""))
         if len(z) != x.shape[0]:
             z = np.linspace(0.0, 1.0, x.shape[0]).tolist()
@@ -251,9 +261,9 @@ class SliceBagDataset(Dataset):
         return x, z, aux, torch.tensor(clinical4_id(row), dtype=torch.long), row["group"], row["label_5"]
 
 
-def make_loader(rows, cache_root, aux_scaler, batch_size, shuffle, num_workers):
+def make_loader(rows, cache_root, aux_scaler, batch_size, shuffle, num_workers, channel_indices):
     return DataLoader(
-        SliceBagDataset(rows, cache_root, aux_scaler),
+        SliceBagDataset(rows, cache_root, aux_scaler, channel_indices),
         batch_size=batch_size,
         shuffle=shuffle,
         num_workers=num_workers,
@@ -593,6 +603,7 @@ def main():
     parser.add_argument("--device", type=device_arg, default=device_arg("auto"))
     parser.add_argument("--weights", choices=["imagenet", "none"], default="imagenet")
     parser.add_argument("--mask-channel-init", choices=["zero", "small", "mean"], default="zero")
+    parser.add_argument("--channel-set", choices=sorted(CHANNEL_SETS), default="all")
     parser.add_argument("--freeze-backbone", action="store_true")
     parser.add_argument("--no-aux", action="store_true")
     parser.add_argument("--amp", action="store_true")
@@ -612,9 +623,10 @@ def main():
     print(f"device: {dev} amp={use_amp}", flush=True)
     print(
         f"rows={len(rows)} folds={args.folds} weights={args.weights} "
-        f"class_counts={dict(class_counts)}",
+        f"channel_set={args.channel_set} class_counts={dict(class_counts)}",
         flush=True,
     )
+    channel_indices = CHANNEL_SETS[args.channel_set]
 
     skf = StratifiedKFold(n_splits=args.folds, shuffle=True, random_state=args.seed)
     all_test_predictions, fold_summaries = [], []
@@ -628,13 +640,13 @@ def main():
         train_rows, val_rows = stratified_val_split(train_val_rows, args.val_fraction, fold_seed)
         aux_scaler = None if args.no_aux else ZPriorScaler().fit(train_rows)
         aux_dim = 0 if aux_scaler is None else aux_scaler.dim
-        train_loader = make_loader(train_rows, args.cache_root, aux_scaler, args.batch_size, True, args.num_workers)
-        val_loader = make_loader(val_rows, args.cache_root, aux_scaler, args.batch_size, False, args.num_workers)
-        test_loader = make_loader(test_rows, args.cache_root, aux_scaler, args.batch_size, False, args.num_workers)
+        train_loader = make_loader(train_rows, args.cache_root, aux_scaler, args.batch_size, True, args.num_workers, channel_indices)
+        val_loader = make_loader(val_rows, args.cache_root, aux_scaler, args.batch_size, False, args.num_workers, channel_indices)
+        test_loader = make_loader(test_rows, args.cache_root, aux_scaler, args.batch_size, False, args.num_workers, channel_indices)
 
         model = ResNet25DMIL(
             weights_name=args.weights,
-            in_channels=5,
+            in_channels=len(channel_indices),
             aux_dim=aux_dim,
             dropout=args.dropout,
             attention_heads=args.attention_heads,
@@ -772,6 +784,8 @@ def main():
         "batch_size": args.batch_size,
         "weights": args.weights,
         "mask_channel_init": args.mask_channel_init,
+        "channel_set": args.channel_set,
+        "input_channels": [CHANNEL_NAMES[i] for i in channel_indices],
         "binary_loss_weight": args.binary_loss_weight,
         "attention_heads": args.attention_heads,
         "logsumexp_temp": args.logsumexp_temp,

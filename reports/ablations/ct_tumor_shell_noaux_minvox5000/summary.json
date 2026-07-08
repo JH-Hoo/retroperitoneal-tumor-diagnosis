@@ -1,0 +1,1329 @@
+{
+  "task": "clinical4_multitask_binary_head_25d",
+  "architecture": "ResNet18 + z-position embedding + gated multi-head attention + mean/max/logsumexp pooling + clinical4 and binary heads",
+  "clinical4_classes": {
+    "0": "sarcoma/GIST-like = 肉瘤类 + 胃肠道间质瘤",
+    "1": "lymphoma = 淋巴瘤",
+    "2": "PPGL = 嗜铬细胞瘤 + 副神经节瘤",
+    "3": "benign neurogenic = 良性神经源性肿瘤"
+  },
+  "derived_binary_definition": {
+    "risk/workup": "sarcoma/GIST-like + lymphoma + PPGL",
+    "benign-like": "benign neurogenic"
+  },
+  "cache_root": "data/champion_flare23_25d_cache_15x224_minvox5000",
+  "num_rows": 179,
+  "folds": 5,
+  "epochs": 10,
+  "batch_size": 4,
+  "weights": "imagenet",
+  "mask_channel_init": "zero",
+  "channel_set": "ct_tumor_shell",
+  "input_channels": [
+    "ct_soft",
+    "ct_fat",
+    "tumor_mask",
+    "tumor_shell_2d"
+  ],
+  "binary_loss_weight": 0.5,
+  "attention_heads": 4,
+  "logsumexp_temp": 1.0,
+  "selection_metric": "combined",
+  "freeze_backbone": false,
+  "use_aux": false,
+  "class_counts": {
+    "sarcoma/GIST-like": 90,
+    "PPGL": 25,
+    "lymphoma": 32,
+    "benign neurogenic": 32
+  },
+  "oof_metrics": {
+    "clinical4": {
+      "accuracy": 0.5642458100558659,
+      "balanced_accuracy": 0.5405902777777778,
+      "macro_f1": 0.5203609242577478,
+      "weighted_f1": 0.5682512327525995,
+      "top2_accuracy": 0.8044692737430168,
+      "per_class_recall": {
+        "sarcoma/GIST-like": 0.6111111111111112,
+        "lymphoma": 0.3125,
+        "PPGL": 0.52,
+        "benign neurogenic": 0.71875
+      },
+      "confusion_matrix": [
+        [
+          55,
+          13,
+          7,
+          15
+        ],
+        [
+          11,
+          10,
+          0,
+          11
+        ],
+        [
+          5,
+          3,
+          13,
+          4
+        ],
+        [
+          3,
+          3,
+          3,
+          23
+        ]
+      ]
+    },
+    "derived_binary": {
+      "accuracy": 0.8212290502793296,
+      "balanced_accuracy": 0.6711309523809523,
+      "macro_f1": 0.6796420581655481,
+      "weighted_f1": 0.8164698236536563,
+      "risk_workup_recall": 0.9047619047619048,
+      "benign_like_recall": 0.4375,
+      "confusion_matrix": [
+        [
+          133,
+          14
+        ],
+        [
+          18,
+          14
+        ]
+      ]
+    },
+    "binary_head": {
+      "accuracy": 0.7932960893854749,
+      "balanced_accuracy": 0.7152423469387755,
+      "macro_f1": 0.6879623085983511,
+      "weighted_f1": 0.8044371623533436,
+      "risk_workup_recall": 0.8367346938775511,
+      "benign_like_recall": 0.59375,
+      "confusion_matrix": [
+        [
+          123,
+          24
+        ],
+        [
+          13,
+          19
+        ]
+      ]
+    }
+  },
+  "folds_detail": [
+    {
+      "fold": 1,
+      "splits": {
+        "train": 121,
+        "val": 22,
+        "test": 36
+      },
+      "aux_scaler": null,
+      "metrics": {
+        "train": {
+          "clinical4": {
+            "accuracy": 0.9421487603305785,
+            "balanced_accuracy": 0.9478922716627635,
+            "macro_f1": 0.9371293952815691,
+            "weighted_f1": 0.9421464071661699,
+            "top2_accuracy": 0.9917355371900827,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.9344262295081968,
+              "lymphoma": 0.8571428571428571,
+              "PPGL": 1.0,
+              "benign neurogenic": 1.0
+            },
+            "confusion_matrix": [
+              [
+                57,
+                0,
+                3,
+                1
+              ],
+              [
+                2,
+                18,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                17,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                22
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.9917355371900827,
+            "balanced_accuracy": 0.994949494949495,
+            "macro_f1": 0.986350817822899,
+            "weighted_f1": 0.9918063887607035,
+            "risk_workup_recall": 0.98989898989899,
+            "benign_like_recall": 1.0,
+            "confusion_matrix": [
+              [
+                98,
+                1
+              ],
+              [
+                0,
+                22
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.9752066115702479,
+            "balanced_accuracy": 0.9848484848484849,
+            "macro_f1": 0.9603927986906711,
+            "weighted_f1": 0.9758071715518525,
+            "risk_workup_recall": 0.9696969696969697,
+            "benign_like_recall": 1.0,
+            "confusion_matrix": [
+              [
+                96,
+                3
+              ],
+              [
+                0,
+                22
+              ]
+            ]
+          }
+        },
+        "val": {
+          "clinical4": {
+            "accuracy": 0.45454545454545453,
+            "balanced_accuracy": 0.5075757575757576,
+            "macro_f1": 0.40404040404040403,
+            "weighted_f1": 0.4150596877869605,
+            "top2_accuracy": 0.7727272727272727,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.36363636363636365,
+              "lymphoma": 0.0,
+              "PPGL": 0.6666666666666666,
+              "benign neurogenic": 1.0
+            },
+            "confusion_matrix": [
+              [
+                4,
+                2,
+                3,
+                2
+              ],
+              [
+                2,
+                0,
+                1,
+                1
+              ],
+              [
+                1,
+                0,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                4
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.8181818181818182,
+            "balanced_accuracy": 0.6944444444444444,
+            "macro_f1": 0.6944444444444444,
+            "weighted_f1": 0.8181818181818182,
+            "risk_workup_recall": 0.8888888888888888,
+            "benign_like_recall": 0.5,
+            "confusion_matrix": [
+              [
+                16,
+                2
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.8636363636363636,
+            "balanced_accuracy": 0.9166666666666667,
+            "macro_f1": 0.8181818181818181,
+            "weighted_f1": 0.8760330578512397,
+            "risk_workup_recall": 0.8333333333333334,
+            "benign_like_recall": 1.0,
+            "confusion_matrix": [
+              [
+                15,
+                3
+              ],
+              [
+                0,
+                4
+              ]
+            ]
+          }
+        },
+        "test": {
+          "clinical4": {
+            "accuracy": 0.6111111111111112,
+            "balanced_accuracy": 0.6182539682539683,
+            "macro_f1": 0.588782991202346,
+            "weighted_f1": 0.6305962854349951,
+            "top2_accuracy": 0.8333333333333334,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.6111111111111112,
+              "lymphoma": 0.42857142857142855,
+              "PPGL": 0.6,
+              "benign neurogenic": 0.8333333333333334
+            },
+            "confusion_matrix": [
+              [
+                11,
+                0,
+                3,
+                4
+              ],
+              [
+                1,
+                3,
+                0,
+                3
+              ],
+              [
+                0,
+                0,
+                3,
+                2
+              ],
+              [
+                1,
+                0,
+                0,
+                5
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.75,
+            "balanced_accuracy": 0.7166666666666667,
+            "macro_f1": 0.653475935828877,
+            "weighted_f1": 0.7754010695187166,
+            "risk_workup_recall": 0.7666666666666667,
+            "benign_like_recall": 0.6666666666666666,
+            "confusion_matrix": [
+              [
+                23,
+                7
+              ],
+              [
+                2,
+                4
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.6944444444444444,
+            "balanced_accuracy": 0.6833333333333333,
+            "macro_f1": 0.6067527308838133,
+            "weighted_f1": 0.7305527970870573,
+            "risk_workup_recall": 0.7,
+            "benign_like_recall": 0.6666666666666666,
+            "confusion_matrix": [
+              [
+                21,
+                9
+              ],
+              [
+                2,
+                4
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "splits": {
+        "train": 121,
+        "val": 22,
+        "test": 36
+      },
+      "aux_scaler": null,
+      "metrics": {
+        "train": {
+          "clinical4": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "macro_f1": 1.0,
+            "weighted_f1": 1.0,
+            "top2_accuracy": 1.0,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 1.0,
+              "lymphoma": 1.0,
+              "PPGL": 1.0,
+              "benign neurogenic": 1.0
+            },
+            "confusion_matrix": [
+              [
+                61,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                21,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                17,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                22
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "macro_f1": 1.0,
+            "weighted_f1": 1.0,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 1.0,
+            "confusion_matrix": [
+              [
+                99,
+                0
+              ],
+              [
+                0,
+                22
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "macro_f1": 1.0,
+            "weighted_f1": 1.0,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 1.0,
+            "confusion_matrix": [
+              [
+                99,
+                0
+              ],
+              [
+                0,
+                22
+              ]
+            ]
+          }
+        },
+        "val": {
+          "clinical4": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.45075757575757575,
+            "macro_f1": 0.4255952380952381,
+            "weighted_f1": 0.4989177489177489,
+            "top2_accuracy": 0.7727272727272727,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.6363636363636364,
+              "lymphoma": 0.25,
+              "PPGL": 0.6666666666666666,
+              "benign neurogenic": 0.25
+            },
+            "confusion_matrix": [
+              [
+                7,
+                1,
+                2,
+                1
+              ],
+              [
+                1,
+                1,
+                0,
+                2
+              ],
+              [
+                1,
+                0,
+                2,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.6818181818181818,
+            "balanced_accuracy": 0.4166666666666667,
+            "macro_f1": 0.40540540540540543,
+            "weighted_f1": 0.6633906633906634,
+            "risk_workup_recall": 0.8333333333333334,
+            "benign_like_recall": 0.0,
+            "confusion_matrix": [
+              [
+                15,
+                3
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.6363636363636364,
+            "balanced_accuracy": 0.3888888888888889,
+            "macro_f1": 0.3888888888888889,
+            "weighted_f1": 0.6363636363636364,
+            "risk_workup_recall": 0.7777777777777778,
+            "benign_like_recall": 0.0,
+            "confusion_matrix": [
+              [
+                14,
+                4
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          }
+        },
+        "test": {
+          "clinical4": {
+            "accuracy": 0.5277777777777778,
+            "balanced_accuracy": 0.5186507936507937,
+            "macro_f1": 0.5046626984126984,
+            "weighted_f1": 0.5363095238095238,
+            "top2_accuracy": 0.7777777777777778,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.5555555555555556,
+              "lymphoma": 0.2857142857142857,
+              "PPGL": 0.4,
+              "benign neurogenic": 0.8333333333333334
+            },
+            "confusion_matrix": [
+              [
+                10,
+                4,
+                0,
+                4
+              ],
+              [
+                3,
+                2,
+                0,
+                2
+              ],
+              [
+                0,
+                2,
+                2,
+                1
+              ],
+              [
+                1,
+                0,
+                0,
+                5
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.8611111111111112,
+            "balanced_accuracy": 0.7833333333333333,
+            "macro_f1": 0.7653194263363755,
+            "weighted_f1": 0.8652759669708823,
+            "risk_workup_recall": 0.9,
+            "benign_like_recall": 0.6666666666666666,
+            "confusion_matrix": [
+              [
+                27,
+                3
+              ],
+              [
+                2,
+                4
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.8055555555555556,
+            "balanced_accuracy": 0.75,
+            "macro_f1": 0.7052631578947368,
+            "weighted_f1": 0.8198830409356724,
+            "risk_workup_recall": 0.8333333333333334,
+            "benign_like_recall": 0.6666666666666666,
+            "confusion_matrix": [
+              [
+                25,
+                5
+              ],
+              [
+                2,
+                4
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fold": 3,
+      "splits": {
+        "train": 121,
+        "val": 22,
+        "test": 36
+      },
+      "aux_scaler": null,
+      "metrics": {
+        "train": {
+          "clinical4": {
+            "accuracy": 0.8429752066115702,
+            "balanced_accuracy": 0.8903085824493733,
+            "macro_f1": 0.8445041478129713,
+            "weighted_f1": 0.8415183301546939,
+            "top2_accuracy": 0.9338842975206612,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.7377049180327869,
+              "lymphoma": 1.0,
+              "PPGL": 0.8235294117647058,
+              "benign neurogenic": 1.0
+            },
+            "confusion_matrix": [
+              [
+                45,
+                7,
+                3,
+                6
+              ],
+              [
+                0,
+                22,
+                0,
+                0
+              ],
+              [
+                2,
+                1,
+                14,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                21
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.9752066115702479,
+            "balanced_accuracy": 0.9473809523809524,
+            "macro_f1": 0.9559519475791773,
+            "weighted_f1": 0.9749659282703597,
+            "risk_workup_recall": 0.99,
+            "benign_like_recall": 0.9047619047619048,
+            "confusion_matrix": [
+              [
+                99,
+                1
+              ],
+              [
+                2,
+                19
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.9504132231404959,
+            "balanced_accuracy": 0.9323809523809523,
+            "macro_f1": 0.9166666666666667,
+            "weighted_f1": 0.9512897570748811,
+            "risk_workup_recall": 0.96,
+            "benign_like_recall": 0.9047619047619048,
+            "confusion_matrix": [
+              [
+                96,
+                4
+              ],
+              [
+                2,
+                19
+              ]
+            ]
+          }
+        },
+        "val": {
+          "clinical4": {
+            "accuracy": 0.6363636363636364,
+            "balanced_accuracy": 0.5378787878787878,
+            "macro_f1": 0.5361111111111111,
+            "weighted_f1": 0.658080808080808,
+            "top2_accuracy": 0.7727272727272727,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.8181818181818182,
+              "lymphoma": 0.5,
+              "PPGL": 0.3333333333333333,
+              "benign neurogenic": 0.5
+            },
+            "confusion_matrix": [
+              [
+                9,
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                2,
+                0,
+                2
+              ],
+              [
+                0,
+                1,
+                1,
+                1
+              ],
+              [
+                0,
+                1,
+                1,
+                2
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.8636363636363636,
+            "balanced_accuracy": 0.625,
+            "macro_f1": 0.6615384615384616,
+            "weighted_f1": 0.8279720279720281,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 0.25,
+            "confusion_matrix": [
+              [
+                18,
+                0
+              ],
+              [
+                3,
+                1
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.9090909090909091,
+            "balanced_accuracy": 0.75,
+            "macro_f1": 0.8070175438596491,
+            "weighted_f1": 0.8963317384370015,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 0.5,
+            "confusion_matrix": [
+              [
+                18,
+                0
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          }
+        },
+        "test": {
+          "clinical4": {
+            "accuracy": 0.5277777777777778,
+            "balanced_accuracy": 0.5091269841269841,
+            "macro_f1": 0.49521531100478466,
+            "weighted_f1": 0.5282651072124757,
+            "top2_accuracy": 0.7777777777777778,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.5555555555555556,
+              "lymphoma": 0.16666666666666666,
+              "PPGL": 0.6,
+              "benign neurogenic": 0.7142857142857143
+            },
+            "confusion_matrix": [
+              [
+                10,
+                3,
+                1,
+                4
+              ],
+              [
+                2,
+                1,
+                0,
+                3
+              ],
+              [
+                2,
+                0,
+                3,
+                0
+              ],
+              [
+                1,
+                1,
+                0,
+                5
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.7777777777777778,
+            "balanced_accuracy": 0.5369458128078818,
+            "macro_f1": 0.535483870967742,
+            "weighted_f1": 0.7405017921146952,
+            "risk_workup_recall": 0.9310344827586207,
+            "benign_like_recall": 0.14285714285714285,
+            "confusion_matrix": [
+              [
+                27,
+                2
+              ],
+              [
+                6,
+                1
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.8333333333333334,
+            "balanced_accuracy": 0.7339901477832512,
+            "macro_f1": 0.7339901477832512,
+            "weighted_f1": 0.8333333333333334,
+            "risk_workup_recall": 0.896551724137931,
+            "benign_like_recall": 0.5714285714285714,
+            "confusion_matrix": [
+              [
+                26,
+                3
+              ],
+              [
+                3,
+                4
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fold": 4,
+      "splits": {
+        "train": 121,
+        "val": 22,
+        "test": 36
+      },
+      "aux_scaler": null,
+      "metrics": {
+        "train": {
+          "clinical4": {
+            "accuracy": 0.9090909090909091,
+            "balanced_accuracy": 0.904681544749047,
+            "macro_f1": 0.8925468209950969,
+            "weighted_f1": 0.9114417737672227,
+            "top2_accuracy": 0.9338842975206612,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.9016393442622951,
+              "lymphoma": 1.0,
+              "PPGL": 0.7647058823529411,
+              "benign neurogenic": 0.9523809523809523
+            },
+            "confusion_matrix": [
+              [
+                55,
+                3,
+                0,
+                3
+              ],
+              [
+                0,
+                22,
+                0,
+                0
+              ],
+              [
+                0,
+                4,
+                13,
+                0
+              ],
+              [
+                0,
+                1,
+                0,
+                20
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.9090909090909091,
+            "balanced_accuracy": 0.7380952380952381,
+            "macro_f1": 0.7965142944503898,
+            "weighted_f1": 0.89533154507929,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 0.47619047619047616,
+            "confusion_matrix": [
+              [
+                100,
+                0
+              ],
+              [
+                11,
+                10
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.9090909090909091,
+            "balanced_accuracy": 0.9450000000000001,
+            "macro_f1": 0.8671258859938105,
+            "weighted_f1": 0.9158793687095574,
+            "risk_workup_recall": 0.89,
+            "benign_like_recall": 1.0,
+            "confusion_matrix": [
+              [
+                89,
+                11
+              ],
+              [
+                0,
+                21
+              ]
+            ]
+          }
+        },
+        "val": {
+          "clinical4": {
+            "accuracy": 0.7272727272727273,
+            "balanced_accuracy": 0.6439393939393939,
+            "macro_f1": 0.6583333333333333,
+            "weighted_f1": 0.7075757575757576,
+            "top2_accuracy": 0.7272727272727273,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.9090909090909091,
+              "lymphoma": 0.75,
+              "PPGL": 0.6666666666666666,
+              "benign neurogenic": 0.25
+            },
+            "confusion_matrix": [
+              [
+                10,
+                1,
+                0,
+                0
+              ],
+              [
+                1,
+                3,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                2,
+                0
+              ],
+              [
+                2,
+                1,
+                0,
+                1
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.8181818181818182,
+            "balanced_accuracy": 0.5,
+            "macro_f1": 0.45,
+            "weighted_f1": 0.7363636363636363,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 0.0,
+            "confusion_matrix": [
+              [
+                18,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.7727272727272727,
+            "balanced_accuracy": 0.4722222222222222,
+            "macro_f1": 0.4358974358974359,
+            "weighted_f1": 0.7132867132867133,
+            "risk_workup_recall": 0.9444444444444444,
+            "benign_like_recall": 0.0,
+            "confusion_matrix": [
+              [
+                17,
+                1
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          }
+        },
+        "test": {
+          "clinical4": {
+            "accuracy": 0.5555555555555556,
+            "balanced_accuracy": 0.5063492063492063,
+            "macro_f1": 0.4933035714285714,
+            "weighted_f1": 0.5686177248677249,
+            "top2_accuracy": 0.8333333333333334,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.6111111111111112,
+              "lymphoma": 0.5,
+              "PPGL": 0.2,
+              "benign neurogenic": 0.7142857142857143
+            },
+            "confusion_matrix": [
+              [
+                11,
+                6,
+                1,
+                0
+              ],
+              [
+                1,
+                3,
+                0,
+                2
+              ],
+              [
+                2,
+                1,
+                1,
+                1
+              ],
+              [
+                0,
+                2,
+                0,
+                5
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.8611111111111112,
+            "balanced_accuracy": 0.6428571428571428,
+            "macro_f1": 0.6825396825396826,
+            "weighted_f1": 0.8280423280423279,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 0.2857142857142857,
+            "confusion_matrix": [
+              [
+                29,
+                0
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.8333333333333334,
+            "balanced_accuracy": 0.8423645320197044,
+            "macro_f1": 0.7777777777777777,
+            "weighted_f1": 0.845679012345679,
+            "risk_workup_recall": 0.8275862068965517,
+            "benign_like_recall": 0.8571428571428571,
+            "confusion_matrix": [
+              [
+                24,
+                5
+              ],
+              [
+                1,
+                6
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fold": 5,
+      "splits": {
+        "train": 122,
+        "val": 22,
+        "test": 35
+      },
+      "aux_scaler": null,
+      "metrics": {
+        "train": {
+          "clinical4": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "macro_f1": 1.0,
+            "weighted_f1": 1.0,
+            "top2_accuracy": 1.0,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 1.0,
+              "lymphoma": 1.0,
+              "PPGL": 1.0,
+              "benign neurogenic": 1.0
+            },
+            "confusion_matrix": [
+              [
+                61,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                22,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                17,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                22
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "macro_f1": 1.0,
+            "weighted_f1": 1.0,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 1.0,
+            "confusion_matrix": [
+              [
+                100,
+                0
+              ],
+              [
+                0,
+                22
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 1.0,
+            "balanced_accuracy": 1.0,
+            "macro_f1": 1.0,
+            "weighted_f1": 1.0,
+            "risk_workup_recall": 1.0,
+            "benign_like_recall": 1.0,
+            "confusion_matrix": [
+              [
+                100,
+                0
+              ],
+              [
+                0,
+                22
+              ]
+            ]
+          }
+        },
+        "val": {
+          "clinical4": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.42992424242424243,
+            "macro_f1": 0.44083694083694086,
+            "weighted_f1": 0.512987012987013,
+            "top2_accuracy": 0.7272727272727273,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.6363636363636364,
+              "lymphoma": 0.25,
+              "PPGL": 0.3333333333333333,
+              "benign neurogenic": 0.5
+            },
+            "confusion_matrix": [
+              [
+                7,
+                1,
+                3,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                1
+              ],
+              [
+                2,
+                0,
+                1,
+                0
+              ],
+              [
+                1,
+                0,
+                1,
+                2
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.8181818181818182,
+            "balanced_accuracy": 0.5972222222222222,
+            "macro_f1": 0.6140350877192983,
+            "weighted_f1": 0.7926634768740031,
+            "risk_workup_recall": 0.9444444444444444,
+            "benign_like_recall": 0.25,
+            "confusion_matrix": [
+              [
+                17,
+                1
+              ],
+              [
+                3,
+                1
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.8181818181818182,
+            "balanced_accuracy": 0.5972222222222222,
+            "macro_f1": 0.6140350877192983,
+            "weighted_f1": 0.7926634768740031,
+            "risk_workup_recall": 0.9444444444444444,
+            "benign_like_recall": 0.25,
+            "confusion_matrix": [
+              [
+                17,
+                1
+              ],
+              [
+                3,
+                1
+              ]
+            ]
+          }
+        },
+        "test": {
+          "clinical4": {
+            "accuracy": 0.6,
+            "balanced_accuracy": 0.5472222222222223,
+            "macro_f1": 0.5102258852258852,
+            "weighted_f1": 0.5811616954474097,
+            "top2_accuracy": 0.8,
+            "per_class_recall": {
+              "sarcoma/GIST-like": 0.7222222222222222,
+              "lymphoma": 0.16666666666666666,
+              "PPGL": 0.8,
+              "benign neurogenic": 0.5
+            },
+            "confusion_matrix": [
+              [
+                13,
+                0,
+                2,
+                3
+              ],
+              [
+                4,
+                1,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                4,
+                0
+              ],
+              [
+                0,
+                0,
+                3,
+                3
+              ]
+            ]
+          },
+          "derived_binary": {
+            "accuracy": 0.8571428571428571,
+            "balanced_accuracy": 0.7155172413793103,
+            "macro_f1": 0.7303543913713405,
+            "weighted_f1": 0.8518600044023773,
+            "risk_workup_recall": 0.9310344827586207,
+            "benign_like_recall": 0.5,
+            "confusion_matrix": [
+              [
+                27,
+                2
+              ],
+              [
+                3,
+                3
+              ]
+            ]
+          },
+          "binary_head": {
+            "accuracy": 0.8,
+            "balanced_accuracy": 0.5488505747126436,
+            "macro_f1": 0.5537340619307832,
+            "weighted_f1": 0.7715846994535519,
+            "risk_workup_recall": 0.9310344827586207,
+            "benign_like_recall": 0.16666666666666666,
+            "confusion_matrix": [
+              [
+                27,
+                2
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
