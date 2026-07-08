@@ -119,6 +119,23 @@ Full summary:
 reports/champion_resnet25d_clinical4_minvox5000/summary.json
 ```
 
+## Current Ablation
+
+The first P0 ablation repeats the same 179-case 5-fold OOF experiment with
+structured auxiliary features disabled (`--no-aux`):
+
+| Run | Clinical4 Accuracy | Clinical4 Balanced Accuracy | Clinical4 Macro F1 | Clinical4 Top-2 Accuracy | Binary Head Accuracy | Binary Head Balanced Accuracy |
+|---|---:|---:|---:|---:|---:|---:|
+| full aux | 0.592 | 0.532 | 0.529 | 0.816 | 0.849 | 0.725 |
+| no aux | 0.547 | 0.500 | 0.485 | 0.821 | 0.810 | 0.701 |
+
+This suggests auxiliary features help the top-1 and binary-head metrics, but the
+CT/mask slice bag still carries useful signal. See:
+
+```text
+reports/ablations/README.md
+```
+
 ## Repository Layout
 
 ```text
@@ -140,6 +157,14 @@ reports/champion_resnet25d_clinical4_minvox5000/
   resnet25d_clinical4_oof_confusion_matrix.png
   resnet25d_derived_binary_oof_confusion_matrix.png
   resnet25d_binary_head_oof_confusion_matrix.png
+
+reports/ablations/
+  README.md
+  no_aux_minvox5000/
+    summary.json
+    oof_predictions.csv
+    oof_predictions_derived_binary.csv
+    oof_predictions_binary_head.csv
 
 data/champion_flare23_25d_cache_15x224_minvox5000/
   dataset_summary.json
