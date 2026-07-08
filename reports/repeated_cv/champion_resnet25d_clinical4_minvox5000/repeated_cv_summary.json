@@ -1,0 +1,127 @@
+{
+  "num_runs": 5,
+  "runs_root": "reports/repeated_cv/champion_resnet25d_clinical4_minvox5000",
+  "seed_metrics": [
+    {
+      "run": "seed_20260708",
+      "num_rows": 179,
+      "clinical4_accuracy": 0.5921787709497207,
+      "clinical4_balanced_accuracy": 0.5321527777777778,
+      "clinical4_macro_f1": 0.5290720038466161,
+      "clinical4_top2_accuracy": 0.8156424581005587,
+      "binary_accuracy": 0.8491620111731844,
+      "binary_balanced_accuracy": 0.7248086734693877,
+      "binary_macro_f1": 0.7332339791356184,
+      "binary_risk_recall": 0.9183673469387755,
+      "binary_benign_recall": 0.53125
+    },
+    {
+      "run": "seed_20260709",
+      "num_rows": 179,
+      "clinical4_accuracy": 0.5977653631284916,
+      "clinical4_balanced_accuracy": 0.5594444444444444,
+      "clinical4_macro_f1": 0.5551968697083354,
+      "clinical4_top2_accuracy": 0.8100558659217877,
+      "binary_accuracy": 0.8212290502793296,
+      "binary_balanced_accuracy": 0.7078018707482994,
+      "binary_macro_f1": 0.7027812370278124,
+      "binary_risk_recall": 0.8843537414965986,
+      "binary_benign_recall": 0.53125
+    },
+    {
+      "run": "seed_20260710",
+      "num_rows": 179,
+      "clinical4_accuracy": 0.5195530726256983,
+      "clinical4_balanced_accuracy": 0.4564236111111111,
+      "clinical4_macro_f1": 0.45687492388259654,
+      "clinical4_top2_accuracy": 0.7821229050279329,
+      "binary_accuracy": 0.7821229050279329,
+      "binary_balanced_accuracy": 0.6350977891156462,
+      "binary_macro_f1": 0.6334470989761092,
+      "binary_risk_recall": 0.8639455782312925,
+      "binary_benign_recall": 0.40625
+    },
+    {
+      "run": "seed_20260711",
+      "num_rows": 179,
+      "clinical4_accuracy": 0.5642458100558659,
+      "clinical4_balanced_accuracy": 0.48236111111111113,
+      "clinical4_macro_f1": 0.47255941171195404,
+      "clinical4_top2_accuracy": 0.7932960893854749,
+      "binary_accuracy": 0.8044692737430168,
+      "binary_balanced_accuracy": 0.6364795918367347,
+      "binary_macro_f1": 0.6448614024148291,
+      "binary_risk_recall": 0.8979591836734694,
+      "binary_benign_recall": 0.375
+    },
+    {
+      "run": "seed_20260712",
+      "num_rows": 179,
+      "clinical4_accuracy": 0.5921787709497207,
+      "clinical4_balanced_accuracy": 0.4947222222222222,
+      "clinical4_macro_f1": 0.49517523437210287,
+      "clinical4_top2_accuracy": 0.8044692737430168,
+      "binary_accuracy": 0.7932960893854749,
+      "binary_balanced_accuracy": 0.6296768707482994,
+      "binary_macro_f1": 0.6344317491858475,
+      "binary_risk_recall": 0.8843537414965986,
+      "binary_benign_recall": 0.375
+    }
+  ],
+  "aggregate": {
+    "clinical4_accuracy": {
+      "mean": 0.5731843575418994,
+      "std": 0.03271854852367896,
+      "ci95_low": 0.5445052852812634,
+      "ci95_high": 0.6018634298025355
+    },
+    "clinical4_balanced_accuracy": {
+      "mean": 0.5050208333333333,
+      "std": 0.0408634502502912,
+      "ci95_low": 0.46920243993183913,
+      "ci95_high": 0.5408392267348273
+    },
+    "clinical4_macro_f1": {
+      "mean": 0.501775688704321,
+      "std": 0.040348937162189825,
+      "ci95_low": 0.4664082859090276,
+      "ci95_high": 0.5371430914996144
+    },
+    "clinical4_top2_accuracy": {
+      "mean": 0.8011173184357542,
+      "std": 0.013454295618762357,
+      "ci95_low": 0.7893241083553255,
+      "ci95_high": 0.8129105285161828
+    },
+    "binary_accuracy": {
+      "mean": 0.8100558659217878,
+      "std": 0.02620343999901357,
+      "ci95_low": 0.7870875380735923,
+      "ci95_high": 0.8330241937699833
+    },
+    "binary_balanced_accuracy": {
+      "mean": 0.6667729591836735,
+      "std": 0.04568544625504677,
+      "ci95_low": 0.626727899927464,
+      "ci95_high": 0.706818018439883
+    },
+    "binary_macro_f1": {
+      "mean": 0.6697510933480434,
+      "std": 0.04556862948778597,
+      "ci95_low": 0.6298084285029766,
+      "ci95_high": 0.7096937581931102
+    },
+    "binary_risk_recall": {
+      "mean": 0.889795918367347,
+      "std": 0.020065144494901554,
+      "ci95_low": 0.8722080437563163,
+      "ci95_high": 0.9073837929783776
+    },
+    "binary_benign_recall": {
+      "mean": 0.44375,
+      "std": 0.0808886194096549,
+      "ci95_low": 0.3728479989704099,
+      "ci95_high": 0.5146520010295901
+    }
+  }
+}

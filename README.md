@@ -25,6 +25,9 @@ benign-like = P(benign neurogenic)
 The model also trains an explicit binary head for `risk/workup` vs `benign-like`.
 This branch contains the champion-mask 2.5D ResNet pipeline, with 4-class training as the main task.
 
+The remote CUDA environment used for the current reports is recorded in
+`requirements-lock.remote-cu128.txt`.
+
 ## External Segmentation
 
 The champion FLARE23 implementation is an external dependency, not vendored code.
@@ -119,6 +122,21 @@ Full summary:
 reports/champion_resnet25d_clinical4_minvox5000/summary.json
 ```
 
+Extended OOF evaluation:
+
+| Item | Result |
+|---|---:|
+| clinical4 macro one-vs-rest ROC-AUC | 0.782 |
+| clinical4 macro one-vs-rest PR-AUC | 0.558 |
+| derived binary benign recall at risk recall >= 0.95 | 0.531 |
+| binary-head benign recall at risk recall >= 0.95 | 0.438 |
+
+See:
+
+```text
+reports/champion_resnet25d_clinical4_minvox5000/extended_eval/
+```
+
 ## P0 Ablations
 
 The P0 signal-source ablations now cover aux-only, no-aux, CT-only, CT + tumor
@@ -141,6 +159,50 @@ Full table and artifacts:
 reports/ablations/README.md
 ```
 
+## P2 Segmentation-As-Classification Baseline
+
+The REMIND-like pseudo-segmentation baseline trains a small 2D U-Net on cached
+2.5D crops, using FLARE label14 pixels as class-aware pseudo masks.
+
+| Model | Cases | Clinical4 Accuracy | Balanced Accuracy | Macro F1 | Top-2 Accuracy |
+|---|---:|---:|---:|---:|---:|
+| pseudo label14 class-aware 2.5D U-Net | 179 | 0.408 | 0.465 | 0.411 | 0.665 |
+
+This is weaker than the 2.5D ResNet MIL model, so pseudo label14
+segmentation-as-classification is currently a control baseline rather than a
+replacement.
+
+See:
+
+```text
+reports/pseudo_seg25d_clinical4_minvox5000/
+```
+
+## P3 Repeated CV
+
+Repeated 5-fold CV across 5 seeds (`20260708` through `20260712`) gives a more
+stable estimate of the primary 2.5D ResNet MIL pipeline:
+
+| Metric | Mean | 95% CI |
+|---|---:|---:|
+| clinical4 accuracy | 0.573 | 0.545-0.602 |
+| clinical4 balanced accuracy | 0.505 | 0.469-0.541 |
+| clinical4 macro-F1 | 0.502 | 0.466-0.537 |
+| clinical4 top-2 accuracy | 0.801 | 0.789-0.813 |
+| binary-head accuracy | 0.810 | 0.787-0.833 |
+| binary-head balanced accuracy | 0.667 | 0.627-0.707 |
+| binary-head benign-like recall | 0.444 | 0.373-0.515 |
+
+The repeated result is slightly below the single primary seed, especially for
+binary benign-like recall, so the current model should be described as a
+candidate-ranking / risk-triage baseline rather than a stable diagnostic model.
+
+See:
+
+```text
+reports/repeated_cv/champion_resnet25d_clinical4_minvox5000/
+```
+
 ## Repository Layout
 
 ```text
@@ -150,8 +212,14 @@ scripts/
   build_flare23_25d_cache.py
   train_resnet25d_clinical4_cv.py
   train_aux_clinical4_cv.py
+  train_pseudo_seg25d_clinical4_cv.py
+  evaluate_oof_clinical4.py
+  summarize_repeated_cv.py
   run_p0_ablations_remote.sh
+  run_pseudo_seg25d_remote.sh
+  run_repeated_cv_remote.sh
   run_champion_resnet25d_clinical4_remote.sh
+  smoke_test_pipeline.py
 
 external/flare23_champion/
   README.md
@@ -172,6 +240,21 @@ reports/ablations/
     oof_predictions.csv
     oof_predictions_derived_binary.csv
     oof_predictions_binary_head.csv
+    *confusion_matrix.png
+
+reports/pseudo_seg25d_clinical4_minvox5000/
+  README.md
+  summary.json
+  oof_predictions.csv
+  *confusion_matrix.png
+
+reports/repeated_cv/champion_resnet25d_clinical4_minvox5000/
+  README.md
+  repeated_cv_summary.json
+  seed_metrics.csv
+  seed_<seed>/
+    summary.json
+    oof_predictions.csv
     *confusion_matrix.png
 
 data/champion_flare23_25d_cache_15x224_minvox5000/

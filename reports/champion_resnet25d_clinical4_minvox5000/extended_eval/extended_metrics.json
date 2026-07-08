@@ -1,0 +1,198 @@
+{
+  "num_rows": 179,
+  "clinical4": {
+    "accuracy": 0.5921787709497207,
+    "balanced_accuracy": 0.5321527777777778,
+    "macro_f1": 0.5290720038466161,
+    "weighted_f1": 0.5887776136966757,
+    "top2_accuracy": 0.8156424581005587,
+    "confusion_matrix": [
+      [
+        64,
+        11,
+        6,
+        9
+      ],
+      [
+        12,
+        10,
+        1,
+        9
+      ],
+      [
+        7,
+        4,
+        12,
+        2
+      ],
+      [
+        7,
+        2,
+        3,
+        20
+      ]
+    ],
+    "per_class_recall": {
+      "sarcoma/GIST-like": 0.7111111111111111,
+      "lymphoma": 0.3125,
+      "PPGL": 0.48,
+      "benign neurogenic": 0.625
+    },
+    "per_class_top2_recall": {
+      "sarcoma/GIST-like": 0.8555555555555555,
+      "lymphoma": 0.8125,
+      "PPGL": 0.76,
+      "benign neurogenic": 0.75
+    },
+    "one_vs_rest_auc": {
+      "sarcoma/GIST-like": 0.7817727840199752,
+      "lymphoma": 0.72140731292517,
+      "PPGL": 0.7888311688311689,
+      "benign neurogenic": 0.8348214285714286
+    },
+    "one_vs_rest_pr_auc": {
+      "sarcoma/GIST-like": 0.7796601153434013,
+      "lymphoma": 0.37827047447336193,
+      "PPGL": 0.49531807781798115,
+      "benign neurogenic": 0.5768453448995944
+    },
+    "macro_ovr_auc": 0.7817081735869358,
+    "macro_ovr_pr_auc": 0.5575235031335847
+  },
+  "derived_binary_argmax": {
+    "accuracy": 0.8659217877094972,
+    "balanced_accuracy": 0.7105654761904762,
+    "macro_f1": 0.7383040935672515,
+    "risk_workup_recall": 0.9523809523809523,
+    "benign_like_recall": 0.46875,
+    "confusion_matrix": [
+      [
+        140,
+        7
+      ],
+      [
+        17,
+        15
+      ]
+    ],
+    "benign_like_auc": 0.8348214285714286,
+    "benign_like_pr_auc": 0.5768453448995944,
+    "brier_benign_like": 0.10889083747587412,
+    "ece_benign_like": 0.07020540876761494
+  },
+  "binary_head_argmax": {
+    "accuracy": 0.8491620111731844,
+    "balanced_accuracy": 0.7248086734693877,
+    "macro_f1": 0.7332339791356184,
+    "risk_workup_recall": 0.9183673469387755,
+    "benign_like_recall": 0.53125,
+    "confusion_matrix": [
+      [
+        135,
+        12
+      ],
+      [
+        15,
+        17
+      ]
+    ],
+    "benign_like_auc": 0.827062074829932,
+    "benign_like_pr_auc": 0.572274098694875,
+    "brier_benign_like": 0.11406037828192238,
+    "ece_benign_like": 0.064233795890595
+  },
+  "derived_binary_threshold_at_min_risk_recall": {
+    "risk_threshold": 0.515,
+    "accuracy": 0.8770949720670391,
+    "balanced_accuracy": 0.7418154761904762,
+    "macro_f1": 0.7671475875118259,
+    "risk_workup_recall": 0.9523809523809523,
+    "benign_like_recall": 0.53125
+  },
+  "binary_head_threshold_at_min_risk_recall": {
+    "risk_threshold": 0.4,
+    "accuracy": 0.8603351955307262,
+    "balanced_accuracy": 0.6949404761904762,
+    "macro_f1": 0.7231673368388494,
+    "risk_workup_recall": 0.9523809523809523,
+    "benign_like_recall": 0.4375
+  },
+  "bootstrap_ci": {
+    "clinical4": {
+      "accuracy": {
+        "mean": 0.5932346368715085,
+        "ci95_low": 0.5195530726256983,
+        "ci95_high": 0.664804469273743
+      },
+      "balanced_accuracy": {
+        "mean": 0.5329866796791365,
+        "ci95_low": 0.45303608970720566,
+        "ci95_high": 0.6133497091692317
+      },
+      "macro_f1": {
+        "mean": 0.5265163193189608,
+        "ci95_low": 0.44934635175829624,
+        "ci95_high": 0.6068402935106806
+      },
+      "top2_accuracy": {
+        "mean": 0.8166145251396648,
+        "ci95_low": 0.7597765363128491,
+        "ci95_high": 0.8715083798882681
+      }
+    },
+    "derived_binary": {
+      "accuracy": {
+        "mean": 0.8662569832402237,
+        "ci95_low": 0.8100558659217877,
+        "ci95_high": 0.9106145251396648
+      },
+      "balanced_accuracy": {
+        "mean": 0.7092114214534194,
+        "ci95_low": 0.6178894975711804,
+        "ci95_high": 0.8005293463976499
+      },
+      "macro_f1": {
+        "mean": 0.7344272971382739,
+        "ci95_low": 0.6358003078832511,
+        "ci95_high": 0.8200453775629443
+      },
+      "risk_workup_recall": {
+        "mean": 0.9525375862656532,
+        "ci95_low": 0.9154929577464789,
+        "ci95_high": 0.9860164141414142
+      },
+      "benign_like_recall": {
+        "mean": 0.46588525664118574,
+        "ci95_low": 0.2893796992481203,
+        "ci95_high": 0.6522157190635451
+      }
+    },
+    "binary_head": {
+      "accuracy": {
+        "mean": 0.848782122905028,
+        "ci95_low": 0.7988826815642458,
+        "ci95_high": 0.8994413407821229
+      },
+      "balanced_accuracy": {
+        "mean": 0.7244487553900492,
+        "ci95_low": 0.632201008152995,
+        "ci95_high": 0.8162138370765131
+      },
+      "macro_f1": {
+        "mean": 0.7303434177419186,
+        "ci95_low": 0.6400095407290434,
+        "ci95_high": 0.8115625161786423
+      },
+      "risk_workup_recall": {
+        "mean": 0.9179596681077764,
+        "ci95_low": 0.8724616814801378,
+        "ci95_high": 0.9589110986860497
+      },
+      "benign_like_recall": {
+        "mean": 0.5309378426723219,
+        "ci95_low": 0.3512632197414806,
+        "ci95_high": 0.7083333333333334
+      }
+    }
+  }
+}
