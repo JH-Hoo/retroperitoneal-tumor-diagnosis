@@ -4,14 +4,25 @@ This repository is intentionally narrowed to the current working pipeline:
 
 1. Generate organ and tumor-candidate masks with the Shenzhen-Yorktal FLARE23 champion project.
 2. Use FLARE label `14` to sample lesion-guided 2.5D CT slices.
-3. Train an ImageNet-pretrained ResNet18 attention-MIL model for binary diagnosis.
+3. Train an ImageNet-pretrained ResNet18 attention-MIL model on 4 clinical-imaging groups.
 
-The binary task is:
+The primary training task is:
 
-- benign: `良性神经源性肿瘤`
-- malignant/risk: `肉瘤类 + PPGL + 淋巴瘤 + 胃肠道间质瘤`
+| ID | Clinical-imaging group | Source labels |
+|---:|---|---|
+| 0 | sarcoma/GIST-like | `肉瘤类 + 胃肠道间质瘤` |
+| 1 | lymphoma | `淋巴瘤` |
+| 2 | PPGL | `PPGL` |
+| 3 | benign neurogenic | `良性神经源性肿瘤` |
 
-This branch contains only the champion-mask 2.5D ResNet pipeline and its current binary CV summary.
+The derived binary output is computed from the 4-class probabilities:
+
+```text
+risk/workup = P(sarcoma/GIST-like) + P(lymphoma) + P(PPGL)
+benign-like = P(benign neurogenic)
+```
+
+This branch contains the champion-mask 2.5D ResNet pipeline, with 4-class training as the main task.
 
 ## External Segmentation
 
@@ -49,25 +60,60 @@ Channels:
 
 The current default keeps cases with at least `5000` champion label14 voxels.
 
-## Run On The 4090 Machine
+## Run On The Remote GPU Machine
 
 After champion FLARE23 inference and label14 statistics are available:
 
 ```bash
-bash scripts/run_champion_resnet25d_binary_remote.sh
+bash scripts/run_champion_resnet25d_clinical4_remote.sh
 ```
 
 The script runs:
 
 1. `scripts/prepare_champion_minvox_labels.py`
 2. `scripts/build_flare23_25d_cache.py`
-3. `scripts/train_resnet25d_binary_cv.py`
+3. `scripts/train_resnet25d_clinical4_cv.py`
 
 Private NIfTI files, Excel sheets, tensor caches, and model weights are ignored by Git.
 
 ## Current Result
 
-Current champion-mask binary 5-fold OOF result, using `minvox5000`:
+Current champion-mask 4-class 5-fold OOF result, using `minvox5000`:
+
+| Model | Cases | Accuracy | Balanced Accuracy | Macro F1 | Top-2 Accuracy |
+|---|---:|---:|---:|---:|---:|
+| Champion FLARE23 + 2.5D ResNet clinical4 | 179 | 0.542 | 0.488 | 0.484 | 0.810 |
+
+Per-class recall:
+
+| Class | Recall |
+|---|---:|
+| sarcoma/GIST-like | 0.644 |
+| lymphoma | 0.438 |
+| PPGL | 0.400 |
+| benign neurogenic | 0.469 |
+
+Derived binary result from the same 4-class probabilities:
+
+| Output | Accuracy | Balanced Accuracy | Macro F1 | Risk/Workup Recall | Benign-Like Recall |
+|---|---:|---:|---:|---:|---:|
+| `risk/workup` vs `benign-like` | 0.810 | 0.628 | 0.640 | 0.912 | 0.344 |
+
+Clinical4 confusion matrix:
+
+![Clinical4 OOF confusion matrix](reports/champion_resnet25d_clinical4_minvox5000/resnet25d_clinical4_oof_confusion_matrix.png)
+
+Derived binary confusion matrix:
+
+![Derived binary OOF confusion matrix](reports/champion_resnet25d_clinical4_minvox5000/resnet25d_derived_binary_oof_confusion_matrix.png)
+
+Full summary:
+
+```text
+reports/champion_resnet25d_clinical4_minvox5000/summary.json
+```
+
+Previous direct binary baseline, using `minvox5000`:
 
 | Model | Cases | Accuracy | Balanced Accuracy | Macro F1 | Benign Recall | Risk Recall |
 |---|---:|---:|---:|---:|---:|---:|
@@ -90,8 +136,9 @@ scripts/
   monitor_and_run_flare23_champion.sh
   prepare_champion_minvox_labels.py
   build_flare23_25d_cache.py
+  train_resnet25d_clinical4_cv.py
   train_resnet25d_binary_cv.py
-  run_champion_resnet25d_binary_remote.sh
+  run_champion_resnet25d_clinical4_remote.sh
 
 external/flare23_champion/
   README.md
@@ -100,6 +147,13 @@ reports/champion_resnet25d_binary_minvox5000/
   summary.json
   oof_predictions.csv
   confusion_matrix.png
+
+reports/champion_resnet25d_clinical4_minvox5000/
+  summary.json
+  oof_predictions.csv
+  oof_predictions_derived_binary.csv
+  resnet25d_clinical4_oof_confusion_matrix.png
+  resnet25d_derived_binary_oof_confusion_matrix.png
 
 data/champion_flare23_25d_cache_15x224_minvox5000/
   dataset_summary.json

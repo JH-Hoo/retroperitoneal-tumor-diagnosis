@@ -29,14 +29,14 @@ mkdir -p logs data/labels data/champion_flare23_25d_cache_15x224_minvox5000 mode
   --overwrite \
   2>&1 | tee logs/build_champion_flare23_25d_cache_minvox5000.log
 
-"$PYTHON_BIN" scripts/train_resnet25d_binary_cv.py \
+"$PYTHON_BIN" scripts/train_resnet25d_clinical4_cv.py \
   --cache-root data/champion_flare23_25d_cache_15x224_minvox5000 \
-  --out-dir models/champion_resnet25d_binary_minvox5000_cv5 \
+  --out-dir models/champion_resnet25d_clinical4_minvox5000_cv5 \
   --weights imagenet \
   --mask-channel-init zero \
   --epochs 10 \
-  --batch-size 8 \
+  --batch-size 4 \
   --num-workers 2 \
   --device cuda \
   --amp \
-  2>&1 | tee logs/train_champion_resnet25d_binary_minvox5000_cv5.log
+  2>&1 | tee logs/train_champion_resnet25d_clinical4_minvox5000_cv5.log
