@@ -28,6 +28,12 @@ This branch contains the champion-mask 2.5D ResNet pipeline, with 4-class traini
 The remote CUDA environment used for the current reports is recorded in
 `requirements-lock.remote-cu128.txt`.
 
+For a compact result summary, see:
+
+```text
+reports/CURRENT_REPORT.md
+```
+
 ## External Segmentation
 
 The champion FLARE23 implementation is an external dependency, not vendored code.
