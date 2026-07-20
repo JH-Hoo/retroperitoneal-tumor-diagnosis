@@ -36,3 +36,6 @@ bash scripts/run_nephrectomy_multilevel_remote.sh
 
 Large ROIs, weights, and patient-level results are written outside Git to
 `/root/autodl-tmp/nephrectomy_multilevel` by default.
+
+The completed 2026-07-21 result is summarized in
+`reports/nephrectomy_multilevel_20260721/README.md`.
