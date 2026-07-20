@@ -177,15 +177,24 @@ def make_interface_mask(tumor, kidney, distance_to_tumor, distance_to_kidney, wi
     return largest_component(interface)
 
 
-def nearest_interface_center(tumor: np.ndarray, kidney: np.ndarray, spacing_zyx):
-    """Return the midpoint of the nearest tumor and kidney voxels in index space."""
+def nearest_interface_center(tumor: np.ndarray, kidney: np.ndarray, spacing_zyx, crop_size_zyx):
+    """Return a crop-safe center near the closest tumor-kidney interface.
+
+    The unconstrained midpoint is ideal when both structures fit.  When they
+    are farther apart than the fixed paper ROI, constrain the offset so the
+    closest tumor voxel is always retained; absence of kidney in that crop then
+    truthfully represents a very large separation instead of an empty ROI.
+    """
     distance, indices = ndimage.distance_transform_edt(
         ~kidney, sampling=spacing_zyx, return_indices=True
     )
     tumor_coords = np.argwhere(tumor)
     nearest_tumor = tumor_coords[int(np.argmin(distance[tumor]))]
     nearest_kidney = indices[(slice(None), *nearest_tumor)].astype(np.float64)
-    return (nearest_tumor.astype(np.float64) + nearest_kidney) / 2.0
+    half_extent = np.asarray(crop_size_zyx, dtype=np.float64) / 2.0 - 2.0
+    midpoint_offset = (nearest_kidney - nearest_tumor) / 2.0
+    safe_offset = np.clip(midpoint_offset, -half_extent, half_extent)
+    return nearest_tumor.astype(np.float64) + safe_offset
 
 
 def radiomics_extractor():
@@ -299,8 +308,8 @@ def process_case(record, args_dict):
         # The paper used a compact kidney-tumor ROI.  Retroperitoneal tumors can
         # be much larger, so center the fixed crop on the clinically relevant
         # nearest interface and audit how much of each structure is retained.
-        center = nearest_interface_center(tumor, kidney, spacing_zyx)
         crop_size = tuple(int(x) for x in args_dict["crop_size_zyx"])
+        center = nearest_interface_center(tumor, kidney, spacing_zyx, crop_size)
 
         normalized, norm_mean, norm_std = normalize_ct(ct, union)
         local_context = distance_to_tumor <= float(args_dict["context_mm"])
@@ -419,11 +428,19 @@ def main():
     parser.add_argument("--left-kidney-label", type=int, default=KIDNEY_LABELS["left"])
     parser.add_argument("--jobs", type=int, default=1)
     parser.add_argument("--max-cases", type=int, default=0)
+    parser.add_argument(
+        "--case-ids",
+        default="",
+        help="optional comma-separated case IDs for targeted recomputation",
+    )
     parser.add_argument("--radiomics", action="store_true")
     args = parser.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     records, label_payload = prepare_records(args.labels_json, args.metadata_csv)
+    if args.case_ids:
+        requested = {value.strip() for value in args.case_ids.split(",") if value.strip()}
+        records = [record for record in records if record["case_id"] in requested]
     if args.max_cases:
         records = records[: args.max_cases]
     args_dict = {
