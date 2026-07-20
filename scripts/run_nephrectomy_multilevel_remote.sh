@@ -42,3 +42,7 @@ mkdir -p "${FEATURE_ROOT}" "${DEEP_ROOT}" "${RESULT_ROOT}"
   --out-dir "${RESULT_ROOT}" \
   --inner-folds 3 \
   --bootstrap "${BOOTSTRAP_ITERATIONS:-2000}"
+
+"${PYTHON_BIN}" "${PROJECT_ROOT}/scripts/analyze_nephrectomy_geometry_associations.py" \
+  --features-csv "${FEATURE_ROOT}/features.csv" \
+  --out-dir "${RESULT_ROOT}"
