@@ -202,6 +202,37 @@ def bootstrap_ci(y, probability, metric, iterations, seed):
     }
 
 
+def score_metric(y, probability, metric):
+    if metric == "roc_auc":
+        return float(roc_auc_score(y, probability))
+    if metric == "average_precision":
+        return float(average_precision_score(y, probability))
+    raise ValueError(metric)
+
+
+def paired_bootstrap_delta(y, probability, reference_probability, metric, iterations, seed):
+    rng = np.random.default_rng(seed)
+    values = []
+    for _ in range(iterations):
+        index = rng.integers(0, len(y), len(y))
+        yy = y[index]
+        if len(np.unique(yy)) < 2:
+            continue
+        values.append(
+            score_metric(yy, probability[index], metric)
+            - score_metric(yy, reference_probability[index], metric)
+        )
+    estimate = score_metric(y, probability, metric) - score_metric(y, reference_probability, metric)
+    return float(estimate), float(np.quantile(values, 0.025)), float(np.quantile(values, 0.975))
+
+
+def permutation_p_value(y, probability, metric, iterations, seed):
+    rng = np.random.default_rng(seed)
+    observed = score_metric(y, probability, metric)
+    null = [score_metric(rng.permutation(y), probability, metric) for _ in range(iterations)]
+    return float((1 + np.sum(np.asarray(null) >= observed)) / (iterations + 1))
+
+
 def selected_feature_names(pipeline, feature_names):
     names = np.asarray(feature_names, dtype=object)
     names = names[pipeline.named_steps["variance"].get_support()]
@@ -275,6 +306,7 @@ def main():
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--inner-folds", type=int, default=3)
     parser.add_argument("--bootstrap", type=int, default=2000)
+    parser.add_argument("--permutations", type=int, default=10000)
     parser.add_argument("--seed", type=int, default=20260721)
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -411,10 +443,37 @@ def main():
                     }
                 )
 
+    statistical_comparisons = []
+    reference_probability = p_by_model["geometry"]
+    reference_y = y_by_model["geometry"]
+    for index, model_name in enumerate(MODEL_GROUPS):
+        y = y_by_model[model_name]
+        p = p_by_model[model_name]
+        if not np.array_equal(y, reference_y):
+            raise RuntimeError("model prediction rows are not aligned")
+        row = {"model": model_name, "reference": "geometry"}
+        for offset, metric in enumerate(("roc_auc", "average_precision")):
+            delta, low, high = paired_bootstrap_delta(
+                y,
+                p,
+                reference_probability,
+                metric,
+                args.bootstrap,
+                args.seed + index * 100 + offset,
+            )
+            row[f"{metric}_delta_vs_geometry"] = delta
+            row[f"{metric}_delta_ci_low"] = low
+            row[f"{metric}_delta_ci_high"] = high
+            row[f"{metric}_permutation_p"] = permutation_p_value(
+                y, p, metric, args.permutations, args.seed + index * 1000 + offset
+            )
+        statistical_comparisons.append(row)
+
     write_csv(args.out_dir / "oof_predictions.csv", predictions)
     write_csv(args.out_dir / "model_summary.csv", summaries)
     write_csv(args.out_dir / "sensitivity_analysis.csv", sensitivity)
     write_csv(args.out_dir / "feature_importance.csv", importance_rows)
+    write_csv(args.out_dir / "statistical_comparisons.csv", statistical_comparisons)
     plot_curves(args.out_dir, y_by_model, p_by_model)
     plot_importance(args.out_dir, importance_rows)
 
@@ -426,6 +485,7 @@ def main():
         "models": summaries,
         "folds": fold_results,
         "sensitivity": sensitivity,
+        "statistical_comparisons": statistical_comparisons,
         "feature_group_counts": {key: len(value) for key, value in feature_sets.items()},
     }
     (args.out_dir / "results.json").write_text(
