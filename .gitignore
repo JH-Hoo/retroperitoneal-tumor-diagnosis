@@ -21,6 +21,7 @@ data/**/build_manifest.csv
 data/**/splits/
 data/labels/*.csv
 data/labels/*.json
+data/nephrectomy_multilevel/
 
 # Model weights and training logs
 *.pt

@@ -34,6 +34,15 @@ For a compact result summary, see:
 reports/CURRENT_REPORT.md
 ```
 
+## Nephrectomy Prediction
+
+The experimental nephrectomy branch implements a Yang-style 3-D multi-level
+feature fusion pipeline for CT plus FLARE23 masks. It compares explicit
+tumor-kidney geometry, radiomics, voxel descriptors, task-oriented 3-D deep
+features, and their fusion under nested patient-level cross-validation.
+
+See [NEPHRECTOMY_EXPERIMENT.md](NEPHRECTOMY_EXPERIMENT.md).
+
 ## External Segmentation
 
 The champion FLARE23 implementation is an external dependency, not vendored code.
