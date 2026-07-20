@@ -293,6 +293,7 @@ def main():
     parser.add_argument("--feature-root", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--folds", type=int, default=5)
+    parser.add_argument("--max-folds", type=int, default=0, help="optional smoke-test limit")
     parser.add_argument("--seed", type=int, default=20260721)
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--patience", type=int, default=5)
@@ -311,6 +312,8 @@ def main():
     all_rows = read_csv(args.feature_root / "features.csv")
     outcome_rows = known_rows(all_rows)
     splits = make_outer_splits(outcome_rows, args.folds, args.seed)
+    if args.max_folds:
+        splits = splits[: args.max_folds]
     (args.out_dir / "outer_splits.json").write_text(json.dumps(splits, indent=2), encoding="utf-8")
     by_id = {row["case_id"]: row for row in all_rows}
     summaries = []
